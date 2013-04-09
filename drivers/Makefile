@@ -199,3 +199,5 @@ obj-y                           += motor/
 
 # CCIC
 obj-y	+= ccic/
+
+obj-$(CONFIG_CPU_QUIET)		+= cpuquiet/

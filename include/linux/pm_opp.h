@@ -39,7 +39,7 @@ struct device_opp {
 };
 
 enum dev_pm_opp_event {
-	OPP_EVENT_ADD, OPP_EVENT_ENABLE, OPP_EVENT_DISABLE,
+	OPP_EVENT_ADD, OPP_EVENT_REMOVE, OPP_EVENT_ENABLE, OPP_EVENT_DISABLE,
 };
 
 #if defined(CONFIG_PM_OPP)
@@ -63,6 +63,7 @@ struct dev_pm_opp *dev_pm_opp_find_freq_ceil(struct device *dev,
 
 int dev_pm_opp_add(struct device *dev, unsigned long freq,
 		   unsigned long u_volt);
+void dev_pm_opp_remove(struct device *dev, unsigned long freq);
 
 int dev_pm_opp_enable(struct device *dev, unsigned long freq);
 
@@ -109,6 +110,10 @@ static inline int dev_pm_opp_add(struct device *dev, unsigned long freq,
 	return -EINVAL;
 }
 
+static inline void dev_pm_opp_remove(struct device *dev, unsigned long freq)
+{
+}
+
 static inline int dev_pm_opp_enable(struct device *dev, unsigned long freq)
 {
 	return 0;
@@ -128,10 +133,15 @@ static inline struct srcu_notifier_head *dev_pm_opp_get_notifier(
 
 #if defined(CONFIG_PM_OPP) && defined(CONFIG_OF)
 int of_init_opp_table(struct device *dev);
+void of_free_opp_table(struct device *dev);
 #else
 static inline int of_init_opp_table(struct device *dev)
 {
 	return -EINVAL;
+}
+
+static inline void of_free_opp_table(struct device *dev)
+{
 }
 #endif
 

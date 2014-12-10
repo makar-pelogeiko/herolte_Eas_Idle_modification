@@ -85,7 +85,11 @@ struct dev_pm_opp {
  *
  * This is an internal data structure maintaining the link to opps attached to
  * a device. This structure is not meant to be shared to users as it is
- * meant for book keeping and private to OPP library
+ * meant for book keeping and private to OPP library.
+ *
+ * Because the opp structures can be used from both rcu and srcu readers, we
+ * need to wait for the grace period of both of them before freeing any
+ * resources. And so we have used kfree_rcu() from within call_srcu() handlers.
  */
 #if 0 /* Definition moved to header file */
 struct device_opp {
@@ -513,7 +517,7 @@ static void kfree_device_rcu(struct rcu_head *head)
 {
 	struct device_opp *device_opp = container_of(head, struct device_opp, rcu_head);
 
-	kfree(device_opp);
+	kfree_rcu(device_opp, rcu_head);
 }
 
 void __dev_pm_opp_remove(struct device_opp *dev_opp, struct dev_pm_opp *opp)

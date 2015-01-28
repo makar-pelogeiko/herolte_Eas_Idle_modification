@@ -223,6 +223,8 @@ use_default:
 	goto exit_idle;
 }
 
+DEFINE_PER_CPU(bool, cpu_dead_idle);
+
 /*
  * Generic idle loop implementation
  *

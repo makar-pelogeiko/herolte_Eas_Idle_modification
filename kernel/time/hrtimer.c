@@ -887,7 +887,6 @@ static int enqueue_hrtimer(struct hrtimer *timer,
 {
 	debug_activate(timer);
 
-	timerqueue_add(&base->active, &timer->node);
 	base->cpu_base->active_bases |= 1 << base->index;
 
 	/*
@@ -896,7 +895,7 @@ static int enqueue_hrtimer(struct hrtimer *timer,
 	 */
 	timer->state |= HRTIMER_STATE_ENQUEUED;
 
-	return (&timer->node == base->active.next);
+	return timerqueue_add(&base->active, &timer->node);
 }
 
 /*
@@ -920,8 +919,7 @@ static void __remove_hrtimer(struct hrtimer *timer,
 		goto out;
 
 	next_timer = timerqueue_getnext(&base->active);
-	timerqueue_del(&base->active, &timer->node);
-	if (!timerqueue_getnext(&base->active))
+	if (!timerqueue_del(&base->active, &timer->node))
 		cpu_base->active_bases &= ~(1 << base->index);
 
 	if (&timer->node == next_timer) {

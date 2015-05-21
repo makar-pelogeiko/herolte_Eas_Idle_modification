@@ -6210,6 +6210,9 @@ struct cgroup_subsys memory_cgrp_subsys = {
 	.can_attach = mem_cgroup_can_attach,
 	.cancel_attach = mem_cgroup_cancel_attach,
 	.attach = mem_cgroup_move_task,
+#ifdef CONFIG_CGROUP_NICE_ATTACH
+	.allow_attach = cgroup_nice_allow_attach,
+#endif
 	.bind = mem_cgroup_bind,
 	.legacy_cftypes = mem_cgroup_files,
 	.early_init = 0,

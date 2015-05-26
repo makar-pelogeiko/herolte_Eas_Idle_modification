@@ -170,4 +170,19 @@ int __clockevents_update_freq(struct clock_event_device *dev, u32 freq);
 
 extern void do_timer(unsigned long ticks);
 extern void update_wall_time(void);
+
+#ifdef CONFIG_NO_HZ_COMMON
+extern unsigned long tick_nohz_active;
+#else
+#define tick_nohz_active (0)
+#endif
+
+#if defined(CONFIG_SMP) && defined(CONFIG_NO_HZ_COMMON)
+extern void timers_update_migration(void);
+#else
+static inline void timers_update_migration(void) { }
+#endif
+
+DECLARE_PER_CPU(struct hrtimer_cpu_base, hrtimer_bases);
+
 extern u64 get_next_timer_interrupt(unsigned long basej, u64 basem);

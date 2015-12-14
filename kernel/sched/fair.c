@@ -2552,7 +2552,7 @@ static inline int update_cfs_rq_load_avg(u64 now, struct cfs_rq *cfs_rq)
 	int decayed, removed = 0;
 
 	if (atomic_long_read(&cfs_rq->removed_load_avg)) {
-		long r = atomic_long_xchg(&cfs_rq->removed_load_avg, 0);
+		s64 r = atomic_long_xchg(&cfs_rq->removed_load_avg, 0);
 		sub_positive(&sa->load_avg, r);
 		sub_positive(&sa->load_sum, r * LOAD_AVG_MAX);
 		removed = 1;

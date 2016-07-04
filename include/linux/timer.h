@@ -62,7 +62,8 @@ struct timer_list {
 #define TIMER_MIGRATING		0x00080000
 #define TIMER_BASEMASK		(TIMER_CPUMASK | TIMER_MIGRATING)
 #define TIMER_DEFERRABLE	0x00100000
-#define TIMER_IRQSAFE		0x00200000
+#define TIMER_PINNED		0x00200000
+#define TIMER_IRQSAFE		0x00400000
 
 #define __TIMER_INITIALIZER(_function, _expires, _data, _flags) { \
 		.entry = { .next = TIMER_ENTRY_STATIC },	\
@@ -83,6 +84,9 @@ struct timer_list {
 
 #define TIMER_DEFERRED_INITIALIZER(_function, _expires, _data)	\
 	__TIMER_INITIALIZER((_function), (_expires), (_data), TIMER_DEFERRABLE)
+
+#define TIMER_PINNED_DEFERRED_INITIALIZER(_function, _expires, _data)	\
+	__TIMER_INITIALIZER((_function), (_expires), (_data), TIMER_DEFERRABLE | TIMER_PINNED)
 
 #define TIMER_PINNED_DEFERRED_INITIALIZER(_function, _expires, _data)	\
 	__TIMER_INITIALIZER((_function), (_expires), (_data), TIMER_DEFERRABLE | TIMER_PINNED)
@@ -189,8 +193,8 @@ extern int mod_timer_pinned(struct timer_list *timer, unsigned long expires);
 
 extern void set_timer_slack(struct timer_list *time, int slack_hz);
 
-#define TIMER_NOT_PINNED	0
-#define TIMER_PINNED		1
+#define MOD_TIMER_NOT_PINNED	0
+#define MOD_TIMER_PINNED	1
 /*
  * The jiffies value which is added to now, when there is no timer
  * in the timer wheel:

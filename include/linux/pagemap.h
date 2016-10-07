@@ -28,6 +28,8 @@ enum mapping_flags {
 #ifdef CONFIG_SDP
 	AS_SENSITIVE = __GFP_BITS_SHIFT + 5, /* Group of sensitive pages to be cleaned up */
 #endif
+	/* writeback related tags are not used */
+	AS_NO_WRITEBACK_TAGS = __GFP_BITS_SHIFT + 5,
 };
 
 static inline void mapping_set_error(struct address_space *mapping, int error)
@@ -65,6 +67,16 @@ static inline void mapping_set_exiting(struct address_space *mapping)
 static inline int mapping_exiting(struct address_space *mapping)
 {
 	return test_bit(AS_EXITING, &mapping->flags);
+}
+
+static inline void mapping_set_no_writeback_tags(struct address_space *mapping)
+{
+	set_bit(AS_NO_WRITEBACK_TAGS, &mapping->flags);
+}
+
+static inline int mapping_use_writeback_tags(struct address_space *mapping)
+{
+	return !test_bit(AS_NO_WRITEBACK_TAGS, &mapping->flags);
 }
 
 static inline gfp_t mapping_gfp_mask(struct address_space * mapping)

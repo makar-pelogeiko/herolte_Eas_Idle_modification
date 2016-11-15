@@ -289,14 +289,13 @@ static int cpufreq_sched_policy_init(struct cpufreq_policy *policy)
 	pr_debug("%s: throttle threshold = %u [ns]\n",
 		  __func__, gd->up_throttle_nsec);
 
-	policy->governor_data = gd;
-
-	rc = sysfs_create_group(get_governor_parent_kobj(policy), get_sysfs_attr());
+	rc = sysfs_create_group(&policy->kobj, get_sysfs_attr());
 	if (rc) {
 		pr_err("%s: couldn't create sysfs attributes: %d\n", __func__, rc);
 		goto err;
 	}
 
+	policy->governor_data = gd;
 	if (cpufreq_driver_is_slow()) {
 		cpufreq_driver_slow = true;
 		gd->task = kthread_create(cpufreq_sched_thread, policy,
@@ -333,7 +332,7 @@ static int cpufreq_sched_policy_exit(struct cpufreq_policy *policy)
 		put_task_struct(gd->task);
 	}
 
-	sysfs_remove_group(get_governor_parent_kobj(policy), get_sysfs_attr());
+	sysfs_remove_group(&policy->kobj, get_sysfs_attr());
 
 	policy->governor_data = NULL;
 

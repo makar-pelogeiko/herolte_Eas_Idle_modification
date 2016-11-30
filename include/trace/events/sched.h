@@ -1071,6 +1071,7 @@ TRACE_EVENT(walt_update_task_ravg,
 		__field(int,		cpu			)
 		__field(u64,		cs			)
 		__field(u64,		ps			)
+		__field(unsigned long,	util			)
 		__field(u32,		curr_window		)
 		__field(u32,		prev_window		)
 		__field(u32,		active_windows		)
@@ -1093,6 +1094,8 @@ TRACE_EVENT(walt_update_task_ravg,
 		__entry->irqtime        = irqtime;
 		__entry->cs             = rq->curr_runnable_sum;
 		__entry->ps             = rq->prev_runnable_sum;
+		__entry->util           = rq->prev_runnable_sum << SCHED_LOAD_SHIFT;
+		do_div(__entry->util, walt_ravg_window);
 		__entry->curr_window	= p->ravg.curr_window;
 		__entry->prev_window	= p->ravg.prev_window;
 		__entry->active_windows	= p->ravg.active_windows;

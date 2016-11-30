@@ -1059,6 +1059,7 @@ TRACE_EVENT(walt_update_task_ravg,
 		__field(int,		cpu			)
 		__field(u64,		cs			)
 		__field(u64,		ps			)
+		__field(unsigned long,	util			)
 		__field(u32,		curr_window		)
 		__field(u32,		prev_window		)
 		__field(u32,		active_windows		)
@@ -1081,6 +1082,8 @@ TRACE_EVENT(walt_update_task_ravg,
 		__entry->irqtime        = irqtime;
 		__entry->cs             = rq->curr_runnable_sum;
 		__entry->ps             = rq->prev_runnable_sum;
+		__entry->util           = rq->prev_runnable_sum << SCHED_LOAD_SHIFT;
+		do_div(__entry->util, walt_ravg_window);
 		__entry->curr_window	= p->ravg.curr_window;
 		__entry->prev_window	= p->ravg.prev_window;
 		__entry->active_windows	= p->ravg.active_windows;
@@ -1089,7 +1092,7 @@ TRACE_EVENT(walt_update_task_ravg,
 	TP_printk("wclock=%llu win_start=%llu event=%d cpu=%d "
 		  "cur_freq=%u cur_pid=%d pid=%d comm=%s mrk_start=%llu "
 		  "demand=%u sum=%u walt_avg=%u irqtime=%llu "
-		  "cur_rsum=%llu pre_rsum=%llu "
+		  "cur_rsum=%llu pre_rsum=%llu util=%lu"
 		  "cur_wdw=%u pre_wdw=%u act_wds=%u",
 		__entry->wallclock, __entry->win_start,
 		__entry->evt, __entry->cpu,
@@ -1097,7 +1100,7 @@ TRACE_EVENT(walt_update_task_ravg,
 		__entry->pid, __entry->comm, __entry->mark_start,
 		__entry->demand, __entry->sum,
 		__entry->walt_avg, __entry->irqtime,
-		__entry->cs, __entry->ps,
+		__entry->cs, __entry->ps, __entry->util,
 		__entry->curr_window, __entry->prev_window,
 		__entry->active_windows
 		)

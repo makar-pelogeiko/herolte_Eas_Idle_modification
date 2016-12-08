@@ -1067,7 +1067,7 @@ TRACE_EVENT(walt_update_task_ravg,
 		__field(int,    	evt			)
 		__field(unsigned int,	demand			)
 		__field(unsigned int,	sum			)
-		__field(unsigned int,   walt_avg                )
+		__field(	 u64,	walt_avg		)
 		__field(int,		cpu			)
 		__field(u64,		cs			)
 		__field(u64,		ps			)

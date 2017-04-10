@@ -2531,7 +2531,8 @@ __update_load_avg(u64 now, int cpu, struct sched_avg *sa,
 	delta >>= 10;
 	if (!delta)
 		return 0;
-	sa->last_update_time = now;
+
+	sa->last_update_time += delta << 10;
 
 	if (!cfs_rq && !rt_rq)
 		ontime_update_load_avg(delta, cpu, weight, sa);

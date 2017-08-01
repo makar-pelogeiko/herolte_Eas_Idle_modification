@@ -824,10 +824,9 @@ static int sugov_exit(struct cpufreq_policy *policy)
 	if (!count)
 		sugov_tunables_free(tunables);
 
-	mutex_unlock(&global_tunables_lock);
-
 	sugov_kthread_stop(sg_policy);
 	sugov_policy_free(sg_policy);
+	mutex_unlock(&global_tunables_lock);
 
 	cpufreq_disable_fast_switch(policy);
 	return 0;
@@ -890,6 +889,13 @@ static int sugov_limits(struct cpufreq_policy *policy)
 {
 	struct sugov_policy *sg_policy = policy->governor_data;
 
+	mutex_lock(&global_tunables_lock);
+
+	if (!sg_policy) {
+		mutex_unlock(&global_tunables_lock);
+		return 0;
+	}
+
 	if (!policy->fast_switch_enabled) {
 		mutex_lock(&sg_policy->work_lock);
 		cpufreq_policy_apply_limits(policy);
@@ -898,6 +904,7 @@ static int sugov_limits(struct cpufreq_policy *policy)
 
 	sg_policy->need_freq_update = true;
 
+	mutex_unlock(&global_tunables_lock);
 	return 0;
 }
 

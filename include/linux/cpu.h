@@ -240,11 +240,13 @@ extern struct bus_type cpu_subsys;
 extern void cpu_hotplug_begin(void);
 extern void cpu_hotplug_done(void);
 extern void get_online_cpus(void);
+extern void cpu_hotplug_mutex_held(void);
 extern void put_online_cpus(void);
 extern void cpu_hotplug_disable(void);
 extern void cpu_hotplug_enable(void);
 #define hotcpu_notifier(fn, pri)	cpu_notifier(fn, pri)
 #define __hotcpu_notifier(fn, pri)	__cpu_notifier(fn, pri)
+#define cpu_hotplug_mutex_held()	do { } while (0)
 #define register_hotcpu_notifier(nb)	register_cpu_notifier(nb)
 #define __register_hotcpu_notifier(nb)	__register_cpu_notifier(nb)
 #define unregister_hotcpu_notifier(nb)	unregister_cpu_notifier(nb)

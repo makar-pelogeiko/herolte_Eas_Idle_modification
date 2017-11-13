@@ -4500,8 +4500,10 @@ static void tcp_data_queue_ofo(struct sock *sk, struct sk_buff *skb)
 		}
 #ifdef CONFIG_MPTCP
 		/* MPTCP allows non-data data-fin to be in the ofo-queue */
-		if (mptcp(tp) && TCP_SKB_CB(skb1)->seq == TCP_SKB_CB(skb1)->end_seq)
+		if (mptcp(tp) && TCP_SKB_CB(skb1)->seq == TCP_SKB_CB(skb1)->end_seq) {
+			skb = skb1;
 			continue;
+		}
 #endif
 		__skb_unlink(skb1, &tp->out_of_order_queue);
 		tcp_dsack_extend(sk, TCP_SKB_CB(skb1)->seq,
@@ -4511,7 +4513,7 @@ static void tcp_data_queue_ofo(struct sock *sk, struct sk_buff *skb)
 	}
 
 add_sack:
-	if (tcp_is_sack(tp))
+	if (tcp_is_sack(tp) && seq != end_seq)
 		tcp_sack_new_ofo_skb(sk, seq, end_seq);
 end:
 	if (skb) {

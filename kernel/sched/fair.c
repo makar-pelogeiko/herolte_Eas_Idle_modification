@@ -2458,6 +2458,11 @@ static u32 __compute_runnable_contrib(u64 n)
 #error "load tracking assumes 2^10 as unit"
 #endif
 
+#ifdef CONFIG_FREQVAR_TUNE
+extern unsigned long freqvar_boost_vector(int cpu, unsigned long util,
+						struct cfs_rq *cfs_rq);
+#endif
+
 #define cap_scale(v, s) ((v)*(s) >> SCHED_CAPACITY_SHIFT)
 
 /*
@@ -2521,7 +2526,11 @@ __update_load_avg(u64 now, int cpu, struct sched_avg *sa,
 		ontime_update_load_avg(delta, cpu, weight, sa);
 
 	scale_freq = arch_scale_freq_capacity(NULL, cpu);
+#ifdef CONFIG_FREQVAR_TUNE
+	scale_cpu = freqvar_boost_vector(cpu, sa->util_avg, cfs_rq);
+#else
 	scale_cpu = arch_scale_cpu_capacity(NULL, cpu);
+#endif
 	trace_sched_contrib_scale_f(cpu, scale_freq, scale_cpu);
 
 	/* delta_w is the amount already accumulated against our next period */

@@ -6139,7 +6139,7 @@ static int cpu_util_wake(int cpu, struct task_struct *p)
 	return (util >= capacity) ? capacity : util;
 }
 
-static int start_cpu(bool boosted)
+int start_cpu(bool boosted)
 {
 	struct root_domain *rd = cpu_rq(smp_processor_id())->rd;
 
@@ -6488,7 +6488,11 @@ static int select_energy_cpu_brute(struct task_struct *p, int prev_cpu, int sync
 	sync_entity_load_avg(&p->se);
 
 	/* Find a cpu with sufficient capacity */
-	next_cpu = find_best_target(p, &backup_cpu, boosted, prefer_idle);
+	if (sched_feat(EXYNOS_HMP))
+		next_cpu = exynos_select_cpu(p, &backup_cpu, boosted, prefer_idle);
+	else
+		next_cpu = find_best_target(p, &backup_cpu, boosted, prefer_idle);
+
 	if (next_cpu == -1) {
 		target_cpu = prev_cpu;
 		goto unlock;
@@ -6586,14 +6590,6 @@ select_task_rq_fair(struct task_struct *p, int prev_cpu, int sd_flag, int wake_f
 		want_affine = !wake_wide(p, sibling_count_hint) &&
 			      !wake_cap(p, cpu, prev_cpu) &&
 			      cpumask_test_cpu(cpu, &p->cpus_allowed);
-	}
-
-	if (sched_feat(EXYNOS_HMP)) {
-		int selected_cpu;
-
-		selected_cpu = exynos_select_cpu(p, prev_cpu, sync, sd_flag);
-		if (selected_cpu >= 0)
-			return selected_cpu;
 	}
 
 	if (energy_aware() && !(cpu_rq(prev_cpu)->rd->overutilized))

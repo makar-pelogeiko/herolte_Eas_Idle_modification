@@ -2932,7 +2932,12 @@ int update_rt_rq_load_avg(u64 now, int cpu, struct rt_rq *rt_rq, int running)
 	 * Do something on removed_load_avg
 	 * Do propagate_avg for removed_load/util_avg
 	 */
-	ret = ___update_load_avg(now, cpu, sa, 0, running, NULL, rt_rq);
+	ret = __update_load_avg(now, cpu, sa, 0, running, NULL, rt_rq);
+
+#ifndef CONFIG_64BIT
+	smp_wmb();
+	rt_rq->load_last_update_time_copy = sa->last_update_time;
+#endif
 
 	return ret;
 }

@@ -164,6 +164,7 @@ extern int cpuidle_enter_freeze(struct cpuidle_driver *drv,
 				struct cpuidle_device *dev);
 
 extern struct cpuidle_driver *cpuidle_get_cpu_driver(struct cpuidle_device *dev);
+extern unsigned int cpuidle_get_target_residency(int cpu, int state);
 #else
 static inline void disable_cpuidle(void) { }
 static inline bool cpuidle_not_available(struct cpuidle_driver *drv,
@@ -205,6 +206,7 @@ static inline int cpuidle_enter_freeze(struct cpuidle_driver *drv,
 {return -ENODEV; }
 static inline struct cpuidle_driver *cpuidle_get_cpu_driver(
 	struct cpuidle_device *dev) {return NULL; }
+static inline unsigned int cpuidle_get_target_residency(int cpu, int state) {return UINT_MAX;}
 #endif
 
 /* kernel/sched/idle.c */

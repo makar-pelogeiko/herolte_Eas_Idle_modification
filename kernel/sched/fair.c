@@ -31,7 +31,7 @@
 #include <linux/migrate.h>
 #include <linux/task_work.h>
 #include <linux/module.h>
-#include <linux/ehmp.h>
+#include <linux/ems.h>
 
 #include <trace/events/sched.h>
 
@@ -795,7 +795,7 @@ void post_init_entity_util_avg(struct sched_entity *se)
 	struct sched_avg *sa = &se->avg;
 	long cap = (long)(SCHED_CAPACITY_SCALE - cfs_rq->avg.util_avg) / 2;
 
-	if (sched_feat(EXYNOS_HMP)) {
+	if (sched_feat(EXYNOS_MS)) {
 		exynos_init_entity_util_avg(se);
 		goto util_init_done;
 	}
@@ -4499,7 +4499,7 @@ static inline void update_overutilized_status(struct rq *rq)
 	rcu_read_lock();
 	sd = rcu_dereference(rq->sd);
 	if (sd && !sd_overutilized(sd)) {
-		if (sched_feat(EXYNOS_HMP))
+		if (sched_feat(EXYNOS_MS))
 			overutilized = lbt_overutilized(rq->cpu, sd->level);
 		else
 			overutilized = cpu_overutilized(rq->cpu);
@@ -5812,7 +5812,7 @@ find_idlest_group(struct sched_domain *sd, struct task_struct *p,
 	int load_idx = sd->forkexec_idx;
 	int imbalance = 100 + (sd->imbalance_pct-100)/2;
 
-	if (sched_feat(EXYNOS_HMP)) {
+	if (sched_feat(EXYNOS_MS)) {
 		idlest = exynos_fit_idlest_group(sd, p);
 		if (idlest)
 			return idlest;
@@ -6490,7 +6490,7 @@ static int select_energy_cpu_brute(struct task_struct *p, int prev_cpu, int sync
 	sync_entity_load_avg(&p->se);
 
 	/* Find a cpu with sufficient capacity */
-	if (sched_feat(EXYNOS_HMP)) {
+	if (sched_feat(EXYNOS_MS)) {
 		next_cpu = exynos_select_cpu(p, &backup_cpu, boosted, prefer_idle);
 			if (ontime_of(p)->flags == ONTIME)
 				return next_cpu;
@@ -8144,7 +8144,7 @@ static inline void update_sg_lb_stats(struct lb_env *env,
 		if (!nr_running && idle_cpu(i))
 			sgs->idle_cpus++;
 
-		if (sched_feat(EXYNOS_HMP)) {
+		if (sched_feat(EXYNOS_MS)) {
 			if (lbt_overutilized(i, env->sd->level))
 				*overutilized = true;
 			else
@@ -8801,7 +8801,7 @@ static int need_active_balance(struct lb_env *env)
 			return 1;
 	}
 
-	if (sched_feat(EXYNOS_HMP))
+	if (sched_feat(EXYNOS_MS))
 		return exynos_need_active_balance(env->idle, sd, env->src_cpu, env->dst_cpu);
 
 	/*

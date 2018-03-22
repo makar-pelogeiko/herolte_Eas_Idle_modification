@@ -1239,7 +1239,6 @@ struct sched_avg {
 	unsigned long load_avg, util_avg;
 };
 
-#ifdef CONFIG_SCHED_EHMP
 #define NOT_ONTIME		1
 #define ONTIME_MIGRATING	2
 #define ONTIME			4
@@ -1258,7 +1257,6 @@ struct ontime_entity {
 	int flags;
 	int cpu;
 };
-#endif
 
 #ifdef CONFIG_SCHEDSTATS
 struct sched_statistics {
@@ -1390,9 +1388,7 @@ struct sched_entity {
 	/* Per entity load average tracking */
 	struct sched_avg	avg;
 #endif
-#ifdef CONFIG_SCHED_EHMP
 	struct ontime_entity		ontime;
-#endif
 };
 
 struct sched_rt_entity {

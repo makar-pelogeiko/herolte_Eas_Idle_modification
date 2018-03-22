@@ -9,12 +9,12 @@
 #include <linux/cpuidle.h>
 #include <linux/pm_qos.h>
 #include <linux/of.h>
-#include <linux/ehmp.h>
+#include <linux/ems.h>
 #include <linux/sched_energy.h>
 #include <linux/tick.h>
 
 #define CREATE_TRACE_POINTS
-#include <trace/events/ehmp.h>
+#include <trace/events/ems.h>
 
 #include "../sched.h"
 #include "../tune.h"

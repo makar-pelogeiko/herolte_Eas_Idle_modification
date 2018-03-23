@@ -38,6 +38,7 @@
 #include "sched.h"
 #include "tune.h"
 #include "walt.h"
+#include "ems/ems.h"
 
 /*
  * Targeted preemption latency for CPU-bound tasks:
@@ -6489,14 +6490,7 @@ static int select_energy_cpu_brute(struct task_struct *p, int prev_cpu, int sync
 
 	sync_entity_load_avg(&p->se);
 
-	/* Find a cpu with sufficient capacity */
-	if (sched_feat(EXYNOS_MS)) {
-		next_cpu = exynos_select_cpu(p, &backup_cpu, boosted, prefer_idle);
-			if (ontime_of(p)->flags == ONTIME)
-				return next_cpu;
-	} else {
-		next_cpu = find_best_target(p, &backup_cpu, boosted, prefer_idle);
-	}
+	next_cpu = find_best_target(p, &backup_cpu, boosted, prefer_idle);
 
 	if (next_cpu == -1) {
 		target_cpu = prev_cpu;
@@ -6589,6 +6583,13 @@ select_task_rq_fair(struct task_struct *p, int prev_cpu, int sd_flag, int wake_f
 	int new_cpu = prev_cpu;
 	int want_affine = 0;
 	int sync = wake_flags & WF_SYNC;
+	int target_cpu;
+
+	if (sched_feat(EXYNOS_MS)) {
+		target_cpu = exynos_wakeup_balance(p, sd_flag, sync);
+		if (target_cpu >= 0)
+			return target_cpu;
+	}
 
 	if (sd_flag & SD_BALANCE_WAKE) {
 		record_wakee(p);
@@ -6597,10 +6598,16 @@ select_task_rq_fair(struct task_struct *p, int prev_cpu, int sd_flag, int wake_f
 			      cpumask_test_cpu(cpu, &p->cpus_allowed);
 	}
 
-	if (energy_aware() && !(cpu_rq(prev_cpu)->rd->overutilized))
-		return select_energy_cpu_brute(p, prev_cpu, sync);
-
 	rcu_read_lock();
+	sd = rcu_dereference(cpu_rq(prev_cpu)->sd);
+	if (!sched_feat(EXYNOS_MS) && energy_aware()
+	    && sd && !sd_overutilized(sd)) {
+		new_cpu = select_energy_cpu_brute(p, prev_cpu, 0);
+		goto unlock;
+	}
+
+	sd = NULL;
+
 	for_each_domain(cpu, tmp) {
 		if (!(tmp->flags & SD_LOAD_BALANCE))
 			break;
@@ -6643,6 +6650,8 @@ select_task_rq_fair(struct task_struct *p, int prev_cpu, int sd_flag, int wake_f
 	} else {
 		new_cpu = find_idlest_cpu(sd, p, cpu, prev_cpu, sd_flag);
 	}
+
+unlock:
 	rcu_read_unlock();
 
 	return new_cpu;

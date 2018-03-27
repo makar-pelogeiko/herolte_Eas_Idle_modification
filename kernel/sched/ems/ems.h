@@ -35,12 +35,12 @@ static inline int group_balancing(struct task_struct *p) { return -1; }
 
 #ifdef CONFIG_SCHED_EMS
 extern int
-exynos_wakeup_balance(struct task_struct *p, int sd_flag, int sync);
 extern int __init lbt_sysfs_init(struct kobject *parent);
 extern int __init ontime_sysfs_init(struct kobject *parent);
+exynos_wakeup_balance(struct task_struct *p, int prev_cpu, int sd_flag, int sync);
 #else
 static inline int
-exynos_wakeup_balance(struct task_struct *p, int sd_flag, int sync)
+exynos_wakeup_balance(struct task_struct *p, int prev_cpu, int sd_flag, int sync)
 {
 	return -1;
 }

@@ -24,13 +24,6 @@ unsigned int sysctl_sched_cfs_boost __read_mostly;
 extern struct reciprocal_value schedtune_spc_rdiv;
 struct target_nrg schedtune_target_nrg;
 
-static int perf_threshold = 0;
-
-int schedtune_perf_threshold(void)
-{
-	return perf_threshold + 1;
-}
-
 struct group_balancer {
 	/* sum of task utilization in group */
 	unsigned long util;
@@ -1548,8 +1541,6 @@ schedtune_init(void)
 #else
 	pr_info("schedtune: configured to support global boosting only\n");
 #endif
-
-	perf_threshold = find_second_max_cap();
 
 	schedtune_spc_rdiv = reciprocal_value(100);
 

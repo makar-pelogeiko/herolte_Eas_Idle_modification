@@ -757,6 +757,7 @@ static int __init register_cpufreq_notifier(void)
 {
 	int ret;
 
+#ifndef CONFIG_SIMPLIFIED_ENERGY_MODEL
 	ret = cpufreq_register_notifier(&cpufreq_notifier,
 						CPUFREQ_TRANSITION_NOTIFIER);
 	if (ret)
@@ -764,6 +765,9 @@ static int __init register_cpufreq_notifier(void)
 
 	return cpufreq_register_notifier(&cpufreq_policy_notifier,
 						CPUFREQ_POLICY_NOTIFIER);
+#else
+	return 0;
+#endif
 }
 core_initcall(register_cpufreq_notifier);
 #endif

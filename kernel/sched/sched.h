@@ -1651,6 +1651,14 @@ static inline unsigned long capacity_orig_of(int cpu)
 extern unsigned int sysctl_sched_use_walt_cpu_util;
 extern unsigned int walt_ravg_window;
 extern bool walt_disabled;
+<<<<<<<
+=======
+
+inline unsigned long _task_util_est(struct task_struct *p);
+inline unsigned long task_util_est(struct task_struct *p);
+
+#endif /* CONFIG_SMP */
+>>>>>>>
 
 static inline unsigned long task_util(struct task_struct *p)
 {

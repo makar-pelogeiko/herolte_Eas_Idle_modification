@@ -62,6 +62,14 @@ EXPORT_SYMBOL(test_and_clear_bit);
 EXPORT_SYMBOL(change_bit);
 EXPORT_SYMBOL(test_and_change_bit);
 
+	/* tishift.S */
+extern long long __ashlti3(long long a, int b);
+EXPORT_SYMBOL(__ashlti3);
+extern long long __ashrti3(long long a, int b);
+EXPORT_SYMBOL(__ashrti3);
+extern long long __lshrti3(long long a, int b);
+EXPORT_SYMBOL(__lshrti3);
+
 #ifdef CONFIG_FUNCTION_TRACER
 EXPORT_SYMBOL(_mcount);
 #endif

@@ -172,15 +172,6 @@ if [ -n `which java` ]; then
 fi
 echo "  Deleting unwanted files"
 rm -rf META-INF tgpkernel patch tools anykernel.sh README.md
-echo "- Building system.tar.xz file ..."
-cd $ZIPDIR/tgpkernel
-tar -cf - system/ | xz -9 -c - > system.tar.xz
-mv -f system.tar.xz $ZIPDIR/tgpkernel/files/system.tar.xz
-rm -rf $ZIPDIR/tgpkernel/system
-echo "- Building kernels.tar.xz file ..."
-tar -cf - kernels/ | xz -9 -c - > kernels.tar.xz
-mv -f kernels.tar.xz $ZIPDIR/tgpkernel/files/kernels.tar.xz
-rm -rf $ZIPDIR/tgpkernel/kernels
 echo "- Building final zip ..."
 cd $ZIPDIR
 zip -9gq $ZIP_NAME -r META-INF/ -x "*~"
@@ -237,7 +228,6 @@ sudo echo ""
 mkdir $ZIPDIR
 mkdir $OUTPUT
 cp -rf $RDIR/build/zip/* $ZIPDIR
-mkdir -p $ZIPDIR/tgpkernel/files
 mkdir -p $ZIPDIR/tgpkernel/kernels
 
 START_TIME=`date +%s`

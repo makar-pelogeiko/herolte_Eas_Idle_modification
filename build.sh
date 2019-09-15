@@ -116,7 +116,7 @@ if [ $MODEL = "S7" ]; then
 	sudo sed -i -- 's/G935/G930/g' $WORKDIR/ramdisk/ramdisk/sbin/tgpkernel.sh
 	sudo sed -i -- 's/hero2lte/herolte/g' $WORKDIR/ramdisk/ramdisk/default.prop
 	sudo sed -i -- 's/hero2lte/herolte/g' $WORKDIR/ramdisk/ramdisk/sbin/tgpkernel.sh
-	sudo sed -i -- 's/SRPOI30A003KU/SRPOI17A003KU/g' $WORKDIR/ramdisk/split_img/boot.img-board
+	sudo sed -i -- 's/SRPOI30A004KU/SRPOI17A004KU/g' $WORKDIR/ramdisk/split_img/boot.img-board
 fi
 	cd $WORKDIR/ramdisk
 	./repackimg.sh

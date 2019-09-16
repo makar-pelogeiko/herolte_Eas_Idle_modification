@@ -4,11 +4,10 @@
 RESETPROP="/sbin/resetprop resetprop -v -n"
 
 # Mount
-mount -o remount,rw -t auto /
-mount -t rootfs -o remount,rw rootfs
-mount -o remount,rw -t auto /system
-mount -o remount,rw /data
-mount -o remount,rw /cache
+mount -t rootfs -o rw,remount rootfs;
+mount -o rw,remount /system;
+mount -o rw,remount /data;
+mount -o rw,remount /;
 
 # Set KNOX to 0x0 on running /system
 $RESETPROP ro.boot.warranty_bit "0"
@@ -100,9 +99,7 @@ echo "4096,87380,404480" > /proc/sys/net/ipv4/tcp_rmem
 
 
 # Unmount
-mount -o remount,ro -t auto /
-mount -t rootfs -o remount,ro rootfs
-mount -o remount,ro -t auto /system
-mount -o remount,rw /data
-mount -o remount,rw /cache
-
+mount -t rootfs -o ro,remount rootfs;
+mount -o ro,remount /system;
+mount -o rw,remount /data;
+mount -o ro,remount /;

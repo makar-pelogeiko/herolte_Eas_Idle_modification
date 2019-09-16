@@ -168,8 +168,7 @@ if (prop("tgpkernel-restore.prop","install")=="0") then
 		"main2.prop",
 		"<#ffffcc>Kernel Options</#>", "", 2,
 		"Install Spectrum", "", 0,
-		"Set Kernel to Enforcing", "", 0,
-		"Enable Insecure ADB", "", 0,
+		"Enable Insecure ADB", "", 0
 	);
 	if (prop("main2.prop","item.1.2")=="1") then
 		writetmpfile("anykernel.prop","install=1");

@@ -46,15 +46,6 @@ ROM_OSLEVEL=`cat /tmp/rom_oslevel`
 ui_print "- Setting security patch level to $ROM_OSLEVEL"
 echo $ROM_OSLEVEL > $split_img/boot.img-oslevel
 
-# Ramdisk changes - SELinux Enforcing Mode
-if egrep -q "install=1" "/tmp/aroma/selinux.prop"; then
-	ui_print "- Enabling SELinux Enforcing Mode"
-	replace_string $ramdisk/init.rc "setenforce 1" "setenforce 0" "setenforce 1"
-	replace_string $ramdisk/init.rc "SELINUX=enforcing" "SELINUX=permissive" "SELINUX=enforcing"
-	replace_string $ramdisk/sbin/tgpkernel.sh "echo \"1\" > /sys/fs/selinux/enforce" "echo \"0\" > /sys/fs/selinux/enforce" "echo \"1\" > /sys/fs/selinux/enforce"
-	replace_string $ramdisk/sbin/tgpkernel.sh "chmod 644 /sys/fs/selinux/enforce" "chmod 640 /sys/fs/selinux/enforce" "chmod 644 /sys/fs/selinux/enforce"
-fi
-
 # Ramdisk changes - Deodexed ROM
 if egrep -q "install=1" "/tmp/aroma/deodexed.prop"; then
 	ui_print "- Patching for Deodexed ROM"

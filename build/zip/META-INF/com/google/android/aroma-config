@@ -28,7 +28,6 @@ writetmpfile("insecureadb.prop","install=0");
 writetmpfile("magisk.prop","install=0");
 writetmpfile("mtweaks.prop","install=0");
 writetmpfile("pwm.prop","install=0");
-writetmpfile("selinux.prop","install=0");
 writetmpfile("spectrum.prop","install=0");
 writetmpfile("splash.prop","install=0");
 writetmpfile("tgpkernel-backup.prop","install=0");
@@ -180,14 +179,10 @@ if (prop("tgpkernel-restore.prop","install")=="0") then
 	endif;
 	if (prop("main2.prop","item.1.3")=="1") then
 		writetmpfile("anykernel.prop","install=1");
-		writetmpfile("selinux.prop","install=1");
-	endif;
-	if (prop("main2.prop","item.1.4")=="1") then
-		writetmpfile("anykernel.prop","install=1");
 		writetmpfile("adb.prop","install=1");
 		writetmpfile("insecureadb.prop","install=1");
 	endif;
-	if (prop("main2.prop","item.1.5")=="1") then
+	if (prop("main2.prop","item.1.4")=="1") then
 		writetmpfile("anykernel.prop","install=1");
 		writetmpfile("pwm.prop","install=1");
 	endif;

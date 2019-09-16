@@ -27,7 +27,6 @@ writetmpfile("g935x.prop","install=0");
 writetmpfile("insecureadb.prop","install=0");
 writetmpfile("magisk.prop","install=0");
 writetmpfile("mtweaks.prop","install=0");
-writetmpfile("pwm.prop","install=0");
 writetmpfile("spectrum.prop","install=0");
 writetmpfile("splash.prop","install=0");
 writetmpfile("tgpkernel-backup.prop","install=0");
@@ -171,7 +170,6 @@ if (prop("tgpkernel-restore.prop","install")=="0") then
 		"Install Spectrum", "", 0,
 		"Set Kernel to Enforcing", "", 0,
 		"Enable Insecure ADB", "", 0,
-		"Enable PWM Fix as Default", "", 0
 	);
 	if (prop("main2.prop","item.1.2")=="1") then
 		writetmpfile("anykernel.prop","install=1");
@@ -182,11 +180,6 @@ if (prop("tgpkernel-restore.prop","install")=="0") then
 		writetmpfile("adb.prop","install=1");
 		writetmpfile("insecureadb.prop","install=1");
 	endif;
-	if (prop("main2.prop","item.1.4")=="1") then
-		writetmpfile("anykernel.prop","install=1");
-		writetmpfile("pwm.prop","install=1");
-	endif;
-
 endif;
 
 # START INSTALLER

@@ -73,12 +73,6 @@ if egrep -q "install=1" "/tmp/aroma/spectrum.prop"; then
 	insert_line init.rc "import /init.spectrum.rc" after "import /init.services.rc" "import /init.spectrum.rc"
 fi
 
-# Ramdisk changes - PWMFix
-if egrep -q "install=1" "/tmp/aroma/pwm.prop"; then
-	ui_print "- Enabling PWMFix by default"
-	replace_string sbin/tgpkernel.sh "echo \"1\" > /sys/class/lcd/panel/smart_on" "echo \"0\" > /sys/class/lcd/panel/smart_on" "echo \"1\" > /sys/class/lcd/panel/smart_on"
-fi
-
 ## AnyKernel file attributes
 # set permissions/ownership for included ramdisk files
 chmod 644 $ramdisk/default.prop

@@ -13,12 +13,7 @@
 # -----
 export ARCH=arm64
 export SUBARCH=arm64
-export BUILD_CROSS_COMPILE=/home/arianoxx-dev/aarch64-linux-android-4.9/bin/aarch64-linux-android-
-#export BUILD_CROSS_COMPILE=/home/arianoxx-dev/kernel/toolchains/aarch64-ubertc-5.4.1-20170929/bin/aarch64-linux-android-
-#export BUILD_CROSS_COMPILE=/home/arianoxx-dev/kernel/toolchains/aarch64-ubertc-6.4.1-20170929/bin/aarch64-linux-android-
-#export BUILD_CROSS_COMPILE=/home/arianoxx-dev/kernel/toolchains/aarch64-ubertc-7.2.1-20170929/bin/aarch64-linux-android-
-#export BUILD_CROSS_COMPILE=/home/arianoxx-dev/kernel/toolchains/aarch64-ubertc-7.3.1-20180314/bin/aarch64-linux-android-
-#export BUILD_CROSS_COMPILE=/home/arianoxx-dev/kernel/toolchains/aarch64-linaro-7.3/bin/aarch64-linux-gnu-
+export BUILD_CROSS_COMPILE=/home/pascua14/arm64/bin/aarch64-linux-gnu-
 export CROSS_COMPILE=$BUILD_CROSS_COMPILE
 export BUILD_JOB_NUMBER=`grep processor /proc/cpuinfo|wc -l`
 

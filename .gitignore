@@ -100,3 +100,9 @@ all.config
 # fetched Android config fragments
 android/configs/android-*.cfg
 scripts/dtbtool_exynos/dtbtool
+Edge_build.log
+arch/arm64/boot/dtb/ 
+drivers/gator/gator_src_md5.h
+security/selinux_n/av_permissions.h
+security/selinux_n/flask.h
+build/*.zip

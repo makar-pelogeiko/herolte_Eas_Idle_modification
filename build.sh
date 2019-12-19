@@ -13,7 +13,7 @@
 # -----
 export ARCH=arm64
 export SUBARCH=arm64
-export BUILD_CROSS_COMPILE=/home/pascua14/arm64/bin/aarch64-linux-gnu-
+export BUILD_CROSS_COMPILE=/home/pascua14/linaro/bin/aarch64-unknown-linux-android-
 export CROSS_COMPILE=$BUILD_CROSS_COMPILE
 export BUILD_JOB_NUMBER=`grep processor /proc/cpuinfo|wc -l`
 

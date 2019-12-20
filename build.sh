@@ -30,9 +30,7 @@ DTB_PADDING=0
 
 DEFCONFIG=elite_defconfig
 
-export K_VERSION="v2.2"
 export K_NAME="Elite-Kernel"
-export REVISION="RC"
 export KBUILD_BUILD_VERSION="1"
 S7DEVICE="OREO"
 EDGE_LOG=Edge_build.log
@@ -279,23 +277,23 @@ if [ $prompt == "1" ]; then
     MODEL=G930
     DEVICE=$S7DEVICE
     LOG=$FLAT_LOG
-    export KERNEL_VERSION="$K_NAME-Oreo-$K_VERSION"
+    export KERNEL_VERSION="$K_NAME"
     echo "S7 Flat G930F Selected"
-    ZIP_NAME=$K_NAME-$MODEL-O-$K_VERSION.zip
+    ZIP_NAME=$K_NAME-$MODEL.zip
     MAIN
 elif [ $prompt == "2" ]; then
     MODEL=G935
     DEVICE=$S7DEVICE
     LOG=$EDGE_LOG
-    export KERNEL_VERSION="$K_NAME-Oreo-$K_VERSION"
+    export KERNEL_VERSION="$K_NAME"
     echo "S7 Edge G935F Selected"
-    ZIP_NAME=$K_NAME-$MODEL-O-$K_VERSION.zip
+    ZIP_NAME=$K_NAME-$MODEL.zip
     MAIN
 elif [ $prompt == "3" ]; then
     MODEL=G935
     DEVICE=$S7DEVICE
     LOG=$EDGE_LOG
-    export KERNEL_VERSION="$K_NAME-Oreo-$K_VERSION"
+    export KERNEL_VERSION="$K_NAME"
     echo "S7 EDGE + FLAT Selected"
     echo "Compiling EDGE ..."
     MAIN2
@@ -303,6 +301,6 @@ elif [ $prompt == "3" ]; then
     LOG=$FLAT_LOG
     export KERNEL_VERSION="$K_NAME-Oreo-$K_VERSION"
     echo "Compiling FLAT ..."
-    ZIP_NAME=$K_NAME-G93X-O-$K_VERSION.zip
+    ZIP_NAME=$K_NAME-G93X.zip
     MAIN
 fi

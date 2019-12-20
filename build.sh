@@ -6,7 +6,7 @@
 #
 # For
 #
-# ArianoxxKernel
+# EliteKernel
 #
 
 # SETUP
@@ -28,10 +28,10 @@ INCDIR=$RDIR/include
 PAGE_SIZE=2048
 DTB_PADDING=0
 
-DEFCONFIG=arianoxx_defconfig
+DEFCONFIG=elite_defconfig
 
 export K_VERSION="v2.2"
-export K_NAME="ArianoxKernel"
+export K_NAME="Elite-Kernel"
 export REVISION="RC"
 export KBUILD_BUILD_VERSION="1"
 S7DEVICE="OREO"

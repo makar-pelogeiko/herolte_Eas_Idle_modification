@@ -29,8 +29,6 @@ PAGE_SIZE=2048
 DTB_PADDING=0
 
 DEFCONFIG=arianoxx_defconfig
-DEFCONFIG_S7EDGE=arianoxx_defconfig_edge
-DEFCONFIG_S7FLAT=arianoxx_defconfig_flat
 
 export K_VERSION="v2.2"
 export K_NAME="ArianoxKernel"
@@ -67,11 +65,39 @@ FUNC_CLEAN_DTB()
 FUNC_BUILD_KERNEL()
 {
 	echo ""
-        echo "build common config="$KERNEL_DEFCONFIG ""
         echo "build variant config="$MODEL ""
 
-	cp -f $RDIR/arch/$ARCH/configs/$DEFCONFIG $RDIR/arch/$ARCH/configs/tmp_defconfig
-	cat $RDIR/arch/$ARCH/configs/$KERNEL_DEFCONFIG >> $RDIR/arch/$ARCH/configs/tmp_defconfig
+	cp -f $RDIR/arch/$ARCH/configs/$DEFCONFIG .config
+
+	if [ "$MODEL" == "G935" ]; then
+		scripts/configcleaner "
+CONFIG_WLAN_HERO
+CONFIG_WLAN_HERO2
+CONFIG_FB_DSU_REG_LOCK
+CONFIG_EXYNOS_DECON_LCD_MCD
+CONFIG_LCD_ESD_IDLE_MODE
+CONFIG_PANEL_S6E3HF4_WQHD
+CONFIG_PANEL_S6E3HA3_DYNAMIC
+CONFIG_SENSORS_SX9310_NORMAL_TOUCH_THRESHOLD
+CONFIG_SENSORS_HERO2
+"
+
+		echo "
+# CONFIG_WLAN_HERO is not set
+CONFIG_WLAN_HERO2=y
+CONFIG_FB_DSU_REG_LOCK=y
+CONFIG_EXYNOS_DECON_LCD_MCD=y
+# CONFIG_LCD_ESD_IDLE_MODE is not set
+CONFIG_PANEL_S6E3HF4_WQHD=y
+# CONFIG_PANEL_S6E3HA3_DYNAMIC is not set
+# CONFIG_PANEL_DUALIZATION is not set
+CONFIG_SENSORS_SX9310_NORMAL_TOUCH_THRESHOLD=168
+CONFIG_SENSORS_HERO2=y
+" >> .config
+
+	fi
+
+	mv .config $RDIR/arch/$ARCH/configs/tmp_defconfig
 
 	#FUNC_CLEAN_DTB
 
@@ -252,7 +278,6 @@ read -p "Select an option to compile the kernel " prompt
 if [ $prompt == "1" ]; then
     MODEL=G930
     DEVICE=$S7DEVICE
-    KERNEL_DEFCONFIG=$DEFCONFIG_S7FLAT
     LOG=$FLAT_LOG
     export KERNEL_VERSION="$K_NAME-Oreo-$K_VERSION"
     echo "S7 Flat G930F Selected"
@@ -261,7 +286,6 @@ if [ $prompt == "1" ]; then
 elif [ $prompt == "2" ]; then
     MODEL=G935
     DEVICE=$S7DEVICE
-    KERNEL_DEFCONFIG=$DEFCONFIG_S7EDGE
     LOG=$EDGE_LOG
     export KERNEL_VERSION="$K_NAME-Oreo-$K_VERSION"
     echo "S7 Edge G935F Selected"
@@ -270,14 +294,12 @@ elif [ $prompt == "2" ]; then
 elif [ $prompt == "3" ]; then
     MODEL=G935
     DEVICE=$S7DEVICE
-    KERNEL_DEFCONFIG=$DEFCONFIG_S7EDGE
     LOG=$EDGE_LOG
     export KERNEL_VERSION="$K_NAME-Oreo-$K_VERSION"
     echo "S7 EDGE + FLAT Selected"
     echo "Compiling EDGE ..."
     MAIN2
     MODEL=G930
-    KERNEL_DEFCONFIG=$DEFCONFIG_S7FLAT
     LOG=$FLAT_LOG
     export KERNEL_VERSION="$K_NAME-Oreo-$K_VERSION"
     echo "Compiling FLAT ..."

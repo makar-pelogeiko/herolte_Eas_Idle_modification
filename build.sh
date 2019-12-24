@@ -13,8 +13,8 @@
 # -----
 export ARCH=arm64
 export SUBARCH=arm64
-export BUILD_CROSS_COMPILE=/home/pascua14/linaro/bin/aarch64-unknown-linux-android-
-export CROSS_COMPILE=$BUILD_CROSS_COMPILE
+export GCC_DIR=/home/pascua14/arm64/bin/aarch64-linux-gnu-
+export CLANG_DIR=/home/pascua14/clang/bin/clang
 export BUILD_JOB_NUMBER=`grep processor /proc/cpuinfo|wc -l`
 
 export PLATFORM_VERSION=9.0.0
@@ -99,11 +99,21 @@ CONFIG_SENSORS_HERO2=y
 
 	#FUNC_CLEAN_DTB
 
+	export KBUILD_COMPILER_STRING=$($CLANG_DIR --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')
+
 	make -j$BUILD_JOB_NUMBER ARCH=$ARCH \
-			CROSS_COMPILE=$BUILD_CROSS_COMPILE \
 			tmp_defconfig || exit -1
-	make -j$BUILD_JOB_NUMBER ARCH=$ARCH \
-			CROSS_COMPILE=$BUILD_CROSS_COMPILE || exit -1
+
+	if [ $CC_NAME == "clang" ]; then
+		make -j$BUILD_JOB_NUMBER ARCH=$ARCH \
+			CC=$CLANG_DIR \
+			CLANG_TRIPLE=aarch64-linux-gnu- \
+			CROSS_COMPILE=$GCC_DIR || exit -1
+	elif [ $CC_NAME == "gcc" ]; then
+		make -j$BUILD_JOB_NUMBER ARCH=$ARCH \
+			CROSS_COMPILE=$GCC_DIR || exit -1
+	fi
+
 	echo ""
 
 	rm -f $RDIR/arch/$ARCH/configs/tmp_defconfig
@@ -257,6 +267,26 @@ MAIN2()
 # PROGRAM START
 # -------------
 clear
+echo "**********************************"
+echo "Select a compiler:"
+echo "(1) GCC"
+echo "(2) Clang"
+read -p "Selected cross compiler: " ccprompt
+
+if [ $ccprompt == "1" ]; then
+    CC_NAME=gcc
+    echo "
+Using GCC
+
+"
+elif [ $ccprompt == "2" ]; then
+    CC_NAME=clang
+    echo "
+Using clang
+
+"
+fi
+
 echo "**********************************"
 echo "MoRoKernel & Arianoxx Build Script"
 echo "**********************************"

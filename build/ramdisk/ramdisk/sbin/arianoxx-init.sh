@@ -40,6 +40,9 @@ fi
 	chmod 440 /sys/fs/selinux/policy;
 	echo " " >> $LOG;
 
+	#PWM Flicker-free
+	echo 0 > /sys/class/lcd/panel/smart_on
+
 
 	# deepsleep fix
 	echo "## -- DeepSleep Fix" >> $LOG;

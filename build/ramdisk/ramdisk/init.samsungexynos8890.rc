@@ -1071,7 +1071,7 @@ service fwup /sbin/ffu -a
 #    start secure_storage
 
 # SSWAP
-service swapon /sbin/sswap -s -f 2048
+service swapon /sbin/sswap -s -r -f 2048
     class core
     user root
     group root

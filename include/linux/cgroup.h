@@ -924,18 +924,6 @@ int subsys_cgroup_allow_attach(struct cgroup_subsys_state *css,
 			       struct cgroup_taskset *tset);
 
 
-#ifdef CONFIG_CGROUP_NICE_ATTACH
-/*
- * Default Android check for whether the current process is allowed to move a
- * task across cgroups, either because CAP_SYS_NICE is set or because the uid
- * of the calling process is the same as the moved task or because we are
- * running as root.
- * Returns 0 if this is allowed, or -EACCES otherwise.
- */
-int cgroup_nice_allow_attach(struct cgroup_subsys_state *css,
-				struct cgroup_taskset *tset);
-#endif
-
 #else /* !CONFIG_CGROUPS */
 
 static inline int cgroup_init_early(void) { return 0; }

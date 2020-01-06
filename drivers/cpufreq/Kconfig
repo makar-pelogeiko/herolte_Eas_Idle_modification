@@ -121,14 +121,6 @@ config CPU_FREQ_DEFAULT_GOV_INTERACTIVE
 	  loading your cpufreq low-level hardware driver, using the
 	  'interactive' governor for latency-sensitive workloads.
 
-config CPU_FREQ_DEFAULT_GOV_SCHED
-	bool "sched"
-	select CPU_FREQ_GOV_INTERACTIVE
-	help
-	  Use the CPUfreq governor 'sched' as default. This scales
-	  cpu frequency using CPU utilization estimates from the
-	  scheduler.
-
 config CPU_FREQ_DEFAULT_GOV_SCHEDUTIL
 	bool "schedutil"
 	depends on SMP
@@ -263,23 +255,6 @@ config CPU_FREQ_GOV_SCHEDUTIL
 	  case, it is proportional to the current frequency of the CPU.  The
 	  frequency tipping point is at utilization/capacity equal to 80% in
 	  both cases.
-
-	  If in doubt, say N.
-
-comment "CPU frequency scaling drivers"
-
-config CPU_FREQ_GOV_SCHED
-	tristate "'sched' cpufreq governor"
-	depends on CPU_FREQ
-	select CPU_FREQ_GOV_COMMON
-	help
-	  'sched' - this governor scales cpu frequency from the
-	  scheduler as a function of cpu capacity utilization. It does
-	  not evaluate utilization on a periodic basis (as ondemand
-	  does) but instead is invoked from the completely fair
-	  scheduler when updating per-entity load tracking statistics.
-	  Latency to respond to changes in load is improved over polling
-	  governors due to its event-driven design.
 
 	  If in doubt, say N.
 

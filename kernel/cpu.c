@@ -419,14 +419,8 @@ static int __ref _cpu_down(unsigned int cpu, int tasks_frozen)
 	 *
 	 * Wait for the stop thread to go away.
 	 */
-	while (!idle_cpu(cpu)){
+	while (!idle_cpu(cpu))
 		cpu_relax();
-
-		mdelay(1);
-		timeout--;
-
-		BUG_ON(cpu_rq(cpu)->nr_running || !timeout);
-	}
 
 	/* This actually kills the CPU. */
 	__cpu_die(cpu);

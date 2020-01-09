@@ -425,8 +425,14 @@ static int __ref _cpu_down(unsigned int cpu, int tasks_frozen)
 	 *
 	 * Wait for the stop thread to go away.
 	 */
-	while (!idle_cpu(cpu))
+	while (!idle_cpu(cpu)){
 		cpu_read_relax();
+
+		mdelay(1);
+		timeout--;
+
+		BUG_ON(cpu_rq(cpu)->nr_running || !timeout);
+	}
 
 	/* This actually kills the CPU. */
 	__cpu_die(cpu);
@@ -443,7 +449,6 @@ static int __ref _cpu_down(unsigned int cpu, int tasks_frozen)
 
 out_release:
 	cpu_hotplug_done();
-	trace_sched_cpu_hotplug(cpu, err, 0);
 	if (!err)
 		cpu_notify_nofail(CPU_POST_DEAD | mod, hcpu);
 	return err;
@@ -660,8 +665,6 @@ out_notify:
 		__cpu_notify(CPU_UP_CANCELED | mod, hcpu, nr_calls, NULL);
 out:
 	cpu_hotplug_done();
-	trace_sched_cpu_hotplug(cpu, ret, 1);
-
 	return ret;
 }
 

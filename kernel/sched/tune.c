@@ -15,7 +15,7 @@
 bool schedtune_initialized = false;
 #endif
 
-int sysctl_sched_cfs_boost __read_mostly;
+unsigned int sysctl_sched_cfs_boost __read_mostly;
 
 /* We hold schedtune boost in effect for at least this long */
 #define SCHEDTUNE_BOOST_HOLD_NS 50000000ULL
@@ -302,7 +302,7 @@ struct boost_groups {
 };
 
 /* Boost groups affecting each CPU in the system */
-static DEFINE_PER_CPU(struct boost_groups, cpu_boost_groups);
+DEFINE_PER_CPU(struct boost_groups, cpu_boost_groups);
 
 static inline bool schedtune_boost_timeout(u64 now, u64 ts)
 {
@@ -495,7 +495,7 @@ int schedtune_allow_attach(struct cgroup_subsys_state *css,
 }
 
 int schedtune_can_attach(struct cgroup_subsys_state *css,
-			  struct cgroup_taskset *tset)
+		      struct cgroup_taskset *tset)
 {
 	struct task_struct *task;
 	struct boost_groups *bg;
@@ -509,6 +509,7 @@ int schedtune_can_attach(struct cgroup_subsys_state *css,
 
 	if (!unlikely(schedtune_initialized))
 		return 0;
+
 
 	cgroup_taskset_for_each(task, tset) {
 
@@ -568,8 +569,8 @@ int schedtune_can_attach(struct cgroup_subsys_state *css,
 	return 0;
 }
 
-static void schedtune_cancel_attach(struct cgroup_subsys_state *css,
-				    struct cgroup_taskset *tset)
+void schedtune_cancel_attach(struct cgroup_subsys_state *css,
+		         struct cgroup_taskset *tset)
 {
 	/* This can happen only if SchedTune controller is mounted with
 	 * other hierarchies ane one of them fails. Since usually SchedTune is
@@ -748,11 +749,7 @@ boost_write(struct cgroup_subsys_state *css, struct cftype *cft,
 	/* Update CPU boost */
 	schedtune_boostgroup_update(st->idx, st->boost);
 
-	trace_sched_tune_config(st->boost,
-			threshold_gains[st->perf_boost_idx].nrg_gain,
-			threshold_gains[st->perf_boost_idx].cap_gain,
-			threshold_gains[st->perf_constrain_idx].nrg_gain,
-			threshold_gains[st->perf_constrain_idx].cap_gain);
+	trace_sched_tune_config(st->boost);
 
 	return 0;
 }
@@ -1097,4 +1094,3 @@ nodata:
 	return -EINVAL;
 }
 postcore_initcall(schedtune_init);
-

@@ -21,7 +21,6 @@
 
 #include <linux/syscore_ops.h>
 #include <trace/events/sched.h>
-#include <clocksource/arm_arch_timer.h>
 #include "sched.h"
 #include "walt.h"
 
@@ -105,8 +104,10 @@ walt_dec_cumulative_runnable_avg(struct rq *rq,
 
 static void
 fixup_cumulative_runnable_avg(struct rq *rq,
-			      struct task_struct *p, s64 task_load_delta)
+			      struct task_struct *p, u64 new_task_load)
 {
+	s64 task_load_delta = (s64)new_task_load - task_load(p);
+
 	rq->cumulative_runnable_avg += task_load_delta;
 	if ((s64)rq->cumulative_runnable_avg < 0)
 		panic("cra less than zero: tld: %lld, task_load(p) = %u\n",
@@ -207,10 +208,8 @@ update_window_start(struct rq *rq, u64 wallclock)
 	delta = wallclock - rq->window_start;
 	/* If the MPM global timer is cleared, set delta as 0 to avoid kernel BUG happening */
 	if (delta < 0) {
-		if (arch_timer_read_counter() == 0)
-			delta = 0;
-		else
-			BUG_ON(1);
+		delta = 0;
+		WARN_ONCE(1, "WALT wallclock appears to have gone backwards or reset\n");
 	}
 
 	if (delta < walt_ravg_window)

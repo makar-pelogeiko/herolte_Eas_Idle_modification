@@ -29,6 +29,7 @@
 #include <linux/exynos_ion.h>
 #include <linux/delay.h>
 #include <linux/smc.h>
+#include <linux/pm_qos.h>
 #include <soc/samsung/bts.h>
 #include <soc/samsung/devfreq.h>
 #include <asm/cacheflush.h>
@@ -54,6 +55,8 @@
 #define S5P_MFC_ENC_NAME	"s5p-mfc-enc"
 #define S5P_MFC_DEC_DRM_NAME	"s5p-mfc-dec-secure"
 #define S5P_MFC_ENC_DRM_NAME	"s5p-mfc-enc-secure"
+
+static struct pm_qos_request s5p_mfc_pm_qos_request;
 
 int debug;
 module_param(debug, int, S_IRUGO | S_IWUSR);
@@ -2108,6 +2111,11 @@ static int s5p_mfc_open(struct file *file)
 	mutex_unlock(&dev->mfc_mutex);
 	return ret;
 
+	if (node == MFCNODE_DECODER ||
+		 node == MFCNODE_DECODER_DRM)
+			pm_qos_add_request(&s5p_mfc_pm_qos_request,
+				PM_QOS_CPU_DMA_LATENCY, 1000);
+
 	/* Deinit when failure occured */
 err_hw_init:
 	s5p_mfc_power_off(dev);
@@ -2180,6 +2188,7 @@ static int s5p_mfc_release(struct file *file)
 	struct s5p_mfc_ctx *ctx = fh_to_mfc_ctx(file->private_data);
 	struct s5p_mfc_dev *dev = NULL;
 	struct s5p_mfc_enc *enc = NULL;
+	enum s5p_mfc_node_type node;
 	int ret = 0;
 
 	dev = ctx->dev;
@@ -2189,6 +2198,14 @@ static int s5p_mfc_release(struct file *file)
 	}
 
 	mutex_lock(&dev->mfc_mutex);
+
+	node = s5p_mfc_get_node_type(file);
+	if (node == MFCNODE_DECODER ||
+	    node == MFCNODE_DECODER_DRM) {
+		pm_qos_update_request(&s5p_mfc_pm_qos_request,
+			PM_QOS_DEFAULT_VALUE);
+		pm_qos_remove_request(&s5p_mfc_pm_qos_request);
+	}
 
 	mfc_info_ctx("MFC driver release is called [%d:%d], is_drm(%d)\n",
 			dev->num_drm_inst, dev->num_inst, ctx->is_drm);

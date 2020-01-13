@@ -75,6 +75,8 @@ fi
 		chown system:system /data/system/users/0/personalist.xml
 	fi
 
+	echo 3 > /sys/devices/system/cpu/cpuquiet/nr_min_cpus
+
 
 ) 2>&1 | tee -a ./$LOG
 

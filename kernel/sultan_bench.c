@@ -215,7 +215,7 @@ static int cpu_bench_thread(void *data)
 	sched_setscheduler_nocheck(current, SCHED_FIFO, &sched_max_rt_prio);
 
 	/* Migrate all IRQs off the bench CPUs since they can't service them */
-	irq_migrate_all_off_this_cpu();
+	migrate_irqs();
 	local_irq_disable();
 
 	for (i = 0; i < w->nr_freqs; i++) {

@@ -235,12 +235,6 @@ static void cpu_hotplug_work(struct work_struct *work)
 
 extern int ess_boot_logging;
 
-static void force_panic_work(struct work_struct *work)
-{
-	pr_err("force panic by force_panic_work\n");
-	ess_boot_logging = 0;
-}
-
 static int control_cpu_hotplug(bool enable)
 {
 	struct cpumask mask;
@@ -498,7 +492,6 @@ static int __init cpu_hotplug_init(void)
 {
 	/* Initialize delayed work */
 	INIT_DELAYED_WORK(&cpu_hotplug.delayed_work, cpu_hotplug_work);
-	INIT_DELAYED_WORK(&cpu_hotplug.panic_work, force_panic_work);
 
 	/* Initialize workqueue */
 	cpu_hotplug.workqueue = alloc_workqueue("%s", WQ_HIGHPRI | WQ_UNBOUND |\

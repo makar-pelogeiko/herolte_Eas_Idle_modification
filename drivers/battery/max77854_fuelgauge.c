@@ -1457,7 +1457,7 @@ static int calc_ttf(struct max77854_fuelgauge_data *fuelgauge, union power_suppl
         return 60; //minimum 1minutes
 }
 
-static int max77854_fg_get_property(struct power_supply *psy,
+int max77854_fg_get_property(struct power_supply *psy,
 			     enum power_supply_property psp,
 			     union power_supply_propval *val)
 {
@@ -1692,6 +1692,7 @@ static int max77854_fg_get_property(struct power_supply *psy,
 	}
 	return 0;
 }
+EXPORT_SYMBOL(max77854_fg_get_property);
 
 #if defined(CONFIG_UPDATE_BATTERY_DATA)
 static int max77854_fuelgauge_parse_dt(struct max77854_fuelgauge_data *fuelgauge);

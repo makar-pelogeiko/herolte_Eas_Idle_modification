@@ -338,12 +338,8 @@ static void watchdog_check_hardlockup_other_cpu(void)
 		if (per_cpu(hard_watchdog_warn, next_cpu) == true)
 			return;
 
-		if (hardlockup_panic) {
-			exynos_ss_set_hardlockup(hardlockup_panic);
-			panic("Watchdog detected hard LOCKUP on cpu %u", next_cpu);
-		} else {
+		if (hardlockup_panic)
 			WARN(1, "Watchdog detected hard LOCKUP on cpu %u", next_cpu);
-		}
 
 		per_cpu(hard_watchdog_warn, next_cpu) = true;
 	} else {
@@ -401,14 +397,9 @@ static void watchdog_overflow_callback(struct perf_event *event,
 		if (__this_cpu_read(hard_watchdog_warn) == true)
 			return;
 
-		if (hardlockup_panic) {
-			exynos_ss_set_hardlockup(hardlockup_panic);
-			panic("Watchdog detected hard LOCKUP on cpu %d",
-			      this_cpu);
-		} else {
+		if (hardlockup_panic)
 			WARN(1, "Watchdog detected hard LOCKUP on cpu %d",
 			     this_cpu);
-		}
 
 		__this_cpu_write(hard_watchdog_warn, true);
 		return;
@@ -434,9 +425,6 @@ static enum hrtimer_restart watchdog_timer_fn(struct hrtimer *hrtimer)
 	struct pt_regs *regs = get_irq_regs();
 	int duration;
 	int softlockup_all_cpu_backtrace = sysctl_softlockup_all_cpu_backtrace;
-
-	/* try to enable log_kevent of exynos-snapshot if log_kevent was off because of rcu stall */
-	exynos_ss_try_enable("log_kevent", NSEC_PER_SEC * 60);
 
 	/* kick the hardlockup detector */
 	watchdog_interrupt_count();
@@ -544,7 +532,6 @@ static enum hrtimer_restart watchdog_timer_fn(struct hrtimer *hrtimer)
 				sec_debug_set_extra_info_backtrace(regs);
 			}
 #endif
-			panic("softlockup: hung tasks");
 		}
 		__this_cpu_write(soft_watchdog_warn, true);
 	} else
@@ -917,7 +904,6 @@ void check_softlockup_type(void)
 		pr_auto(ASL9, "Softlockup state: %s, Latency: %lluns, Softirq type: %s, Func: %pf, preempt_count : %x\n",
 			sl_to_name[sl_info->sl_type], sl_info->delay_time, sl_info->softirq_info.softirq_type, sl_info->softirq_info.fn, sl_info->preempt_count);
 	} else {
-		exynos_ss_get_softlockup_info(cpu, sl_info);
 		if (!(preempt_count() & PREEMPT_MASK) || softirq_count())
 			sl_info->sl_type = SL_UNKNOWN_STUCK;
 		pr_auto(ASL9, "Softlockup state: %s, Latency: %lluns, Task: %s, preempt_count: %x\n",
@@ -935,8 +921,6 @@ EXPORT_SYMBOL(get_ess_softlockup_thresh);
 static void check_hardlockup_type(unsigned int cpu)
 {
 	struct hardlockup_info *hl_info = per_cpu_ptr(&percpu_hl_info, cpu);
-
-	exynos_ss_get_hardlockup_info(cpu, hl_info);
 
 	if (hl_info->hl_type == HL_TASK_STUCK) {
 		pr_auto(ASL9, "Hardlockup state: %s, Latency: %lluns, TASK: %s\n",

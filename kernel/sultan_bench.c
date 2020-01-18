@@ -216,7 +216,7 @@ static int cpu_bench_thread(void *data)
 static void print_power_usage(struct power_supply *batt_psy)
 {
 	union power_supply_propval current_val, voltage_val;
-	s64 current_ua, voltage_uv, power_mw;
+	int current_ma, voltage_mv, power_mw;
 	int ret;
 
 	ret = max77854_fg_get_property(batt_psy, POWER_SUPPLY_PROP_CURRENT_NOW,
@@ -233,10 +233,10 @@ static void print_power_usage(struct power_supply *batt_psy)
 		return;
 	}
 
-	current_ua = current_val.intval;
-	voltage_uv = voltage_val.intval;
-	power_mw = current_ua * voltage_uv / 1000000000ULL;
-	pr_err("power usage [%6lld mW]\n", power_mw);
+	current_ma = current_val.intval;
+	voltage_mv = voltage_val.intval;
+	power_mw = current_ma * voltage_mv / 1000;
+	pr_err("power usage [%d mW]\n", power_mw);
 }
 
 static int master_thread(void *data)

@@ -30,6 +30,8 @@
 #include "./panels/decon_lcd.h"
 #include "dsim.h"
 
+#define CONFIG_DECON_EVENT_LOG
+
 extern struct ion_device *ion_exynos;
 extern struct decon_device *decon_f_drvdata;
 extern struct decon_device *decon_s_drvdata;

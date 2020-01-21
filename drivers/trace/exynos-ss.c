@@ -1446,103 +1446,11 @@ static inline void exynos_ss_hook_logbuf(const char *buf, size_t size)
 }
 #endif
 
-static void exynos_ss_dump_one_task_info(struct task_struct *tsk, bool is_main)
-{
-	char state_array[] = {'R', 'S', 'D', 'T', 't', 'Z', 'X', 'x', 'K', 'W'};
-	unsigned char idx = 0;
-	unsigned int state = (tsk->state & TASK_REPORT) | tsk->exit_state;
-	unsigned long wchan;
-	unsigned long pc = 0;
-	char symname[KSYM_NAME_LEN];
-	int permitted;
-	struct mm_struct *mm;
-
-	permitted = ptrace_may_access(tsk, PTRACE_MODE_READ);
-	mm = get_task_mm(tsk);
-	if (mm) {
-		if (permitted)
-			pc = KSTK_EIP(tsk);
-	}
-
-	wchan = get_wchan(tsk);
-	if (lookup_symbol_name(wchan, symname) < 0) {
-		if (!ptrace_may_access(tsk, PTRACE_MODE_READ))
-			snprintf(symname, KSYM_NAME_LEN,  "_____");
-		else
-			snprintf(symname, KSYM_NAME_LEN, "%lu", wchan);
-	}
-
-	while (state) {
-		idx++;
-		state >>= 1;
-	}
-
-	/*
-	 * kick watchdog to prevent unexpected reset during panic sequence
-	 * and it prevents the hang during panic sequence by watchedog
-	 */
-	touch_softlockup_watchdog();
-	s3c2410wdt_keepalive_emergency();
-
-	pr_info("%8d %8d %8d %16lld %c(%d) %3d  %16zx %16zx  %16zx %c %16s [%s]\n",
-			tsk->pid, (int)(tsk->utime), (int)(tsk->stime),
-			tsk->se.exec_start, state_array[idx], (int)(tsk->state),
-			task_cpu(tsk), wchan, pc, (unsigned long)tsk,
-			is_main ? '*' : ' ', tsk->comm, symname);
-
-	if (tsk->state == TASK_RUNNING
-			|| tsk->state == TASK_UNINTERRUPTIBLE
-			|| tsk->mm == NULL) {
-		print_worker_info(KERN_INFO, tsk);
-		show_stack(tsk, NULL);
-		pr_info("\n");
-	}
-}
-
 static inline struct task_struct *get_next_thread(struct task_struct *tsk)
 {
 	return container_of(tsk->thread_group.next,
 				struct task_struct,
 				thread_group);
-}
-
-static void exynos_ss_dump_task_info(void)
-{
-	struct task_struct *frst_tsk;
-	struct task_struct *curr_tsk;
-	struct task_struct *frst_thr;
-	struct task_struct *curr_thr;
-
-	pr_info("\n");
-	pr_info(" current proc : %d %s\n", current->pid, current->comm);
-	pr_info(" ----------------------------------------------------------------------------------------------------------------------------\n");
-	pr_info("     pid      uTime    sTime      exec(ns)  stat  cpu       wchan           user_pc        task_struct       comm   sym_wchan\n");
-	pr_info(" ----------------------------------------------------------------------------------------------------------------------------\n");
-
-	/* processes */
-	frst_tsk = &init_task;
-	curr_tsk = frst_tsk;
-	while (curr_tsk != NULL) {
-		exynos_ss_dump_one_task_info(curr_tsk,  true);
-		/* threads */
-		if (curr_tsk->thread_group.next != NULL) {
-			frst_thr = get_next_thread(curr_tsk);
-			curr_thr = frst_thr;
-			if (frst_thr != curr_tsk) {
-				while (curr_thr != NULL) {
-					exynos_ss_dump_one_task_info(curr_thr, false);
-					curr_thr = get_next_thread(curr_thr);
-					if (curr_thr == curr_tsk)
-						break;
-				}
-			}
-		}
-		curr_tsk = container_of(curr_tsk->tasks.next,
-					struct task_struct, tasks);
-		if (curr_tsk == frst_tsk)
-			break;
-	}
-	pr_info(" ----------------------------------------------------------------------------------------------------------------------------\n");
 }
 
 #ifdef CONFIG_EXYNOS_SNAPSHOT_SFRDUMP_ADV
@@ -1917,7 +1825,6 @@ static int exynos_ss_panic_handler(struct notifier_block *nb,
 	local_irq_disable();
 	exynos_ss_report_reason(ESS_SIGN_PANIC);
 	pr_emerg("exynos-snapshot: panic - reboot[%s]\n", __func__);
-	exynos_ss_dump_task_info();
 #ifdef CONFIG_EXYNOS_CORESIGHT_PC_INFO
 	if (exynos_ss_get_enable("log_kevents", true))
 		memcpy(ess_log->core, exynos_cs_pc, sizeof(ess_log->core));
@@ -1929,7 +1836,6 @@ static int exynos_ss_panic_handler(struct notifier_block *nb,
 #else
 	exynos_ss_report_reason(ESS_SIGN_PANIC);
 	pr_emerg("exynos-snapshot: panic - normal[%s]\n", __func__);
-	exynos_ss_dump_task_info();
 	flush_cache_all();
 #endif
 	return 0;
@@ -4090,29 +3996,5 @@ void exynos_ss_get_hardlockup_info(unsigned int cpu,  void *info)
 	}
 
 	hl_info->hl_type = HL_UNKNOWN_STUCK;
-}
-
-void exynos_ss_get_softlockup_info(unsigned int cpu, void *info)
-{
-	struct softlockup_info *sl_info = info;
-	unsigned long task_idx;
-	unsigned long long task_delay_time;
-	unsigned long long curr, thresh;
-
-	thresh = get_ess_softlockup_thresh();
-	curr = local_clock();
-	task_idx = atomic_read(&ess_idx.task_log_idx[cpu]) & (ARRAY_SIZE(ess_log->task[0]) - 1);
-	task_delay_time = curr - ess_log->task[cpu][task_idx].time;
-	sl_info->delay_time = task_delay_time;
-
-	strncpy(sl_info->task_info.task_comm,
-		ess_log->task[cpu][task_idx].task_comm,
-		TASK_COMM_LEN - 1);
-	sl_info->task_info.task_comm[TASK_COMM_LEN - 1] = '\0';
-
-	if (task_delay_time > thresh)
-		sl_info->sl_type = SL_TASK_STUCK;
-	else
-		sl_info->sl_type = SL_UNKNOWN_STUCK;
 }
 #endif

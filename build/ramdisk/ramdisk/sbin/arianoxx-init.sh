@@ -83,6 +83,7 @@ echo 'Y' > /sys/module/autosmp/parameters/enabled
 # EAS Schedtune
 echo 5 > /dev/stune/foreground/schedtune.boost
 echo 8 > /dev/stune/top-app/schedtune.boost
+
 chmod 777 $LOG
 
 # Unmount

@@ -78,6 +78,8 @@ fi
 
 ) 2>&1 | tee -a ./$LOG
 
+echo 'Y' > /sys/module/autosmp/parameters/enabled
+
 chmod 777 $LOG
 
 # Unmount

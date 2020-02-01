@@ -257,6 +257,7 @@ static void cpu_idle_loop(void)
 				smp_mb(); /* all activity before dead. */
 				this_cpu_write(cpu_dead_idle, true);
 				arch_cpu_idle_dead();
+			}
 
 			local_irq_disable();
 			arch_cpu_idle_enter();

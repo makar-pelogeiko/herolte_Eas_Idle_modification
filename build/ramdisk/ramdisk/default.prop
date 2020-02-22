@@ -6,7 +6,7 @@ persist.security.ams.enforcing=0
 ro.oem_unlock_supported=1
 ro.secure=0
 security.perf_harden=1
-ro.adb.secure=0
+ro.adb.secure=1
 ro.allow.mock.location=0
 ro.debuggable=1
 persist.sys.usb.config=mtp,adb
@@ -63,6 +63,6 @@ wlan.wfd.hdcp=disable
 #
 # BOOTIMAGE_BUILD_PROPERTIES
 #
-ro.bootimage.build.date=Thu Jun 13 08:40:26 KST 2019
-ro.bootimage.build.date.utc=1560382826
-ro.bootimage.build.fingerprint=samsung/gracerltexx/gracerlte:9/PPR1.180610.011/N935FXXS5CSF1:user/test-keys
+ro.bootimage.build.date=Fri Mar 15 18:41:29 KST 2019
+ro.bootimage.build.date.utc=1552642889
+ro.bootimage.build.fingerprint=samsung/gracerltexx/gracerlte:9/PPR1.180610.011/N935FXXU4CSC4:user/test-keys

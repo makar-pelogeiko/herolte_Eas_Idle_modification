@@ -83,9 +83,8 @@ echo 'Y' > /sys/module/autosmp/parameters/enabled
 # EAS Schedtune
 echo 18 > /sys/module/cpu_boost/parameters/dynamic_stune_boost
 echo 750 > /sys/module/cpu_boost/parameters/input_boost_ms
-echo 8 > /dev/stune/foreground/schedtune.boost
+echo 5 > /dev/stune/foreground/schedtune.boost
 echo 1 > /dev/stune/foreground/schedtune.prefer_idle
-echo 5 > /dev/stune/schedtune.boost
 
 chmod 777 $LOG
 

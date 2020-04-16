@@ -124,7 +124,12 @@ module_param_named(writeback_interval, zswap_writeback_interval, uint, 0644);
 #endif
 
 /* Compressed storage to use */
+#ifdef CONFIG_ZSMALLOC
 #define ZSWAP_ZPOOL_DEFAULT "zsmalloc"
+#else
+#define ZSWAP_ZPOOL_DEFAULT "zbud"
+#endif
+
 static char *zswap_zpool_type = ZSWAP_ZPOOL_DEFAULT;
 module_param_named(zpool, zswap_zpool_type, charp, 0444);
 

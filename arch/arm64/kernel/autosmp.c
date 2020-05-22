@@ -127,9 +127,7 @@ static void __ref asmp_work_fn(struct work_struct *work) {
 	unsigned int min_cpu_lc = 0, min_cpu_bc = 0;
 	int nr_cpu_online_lc = 0, nr_cpu_online_bc = 0;
 
-	/* Perform always check cpu 0/4 */
-	if (!cpu_online(4))
-		cpu_up(4);
+	/* Perform always check cpu 0 */
 	if (!cpu_online(0))
 		cpu_up(0);
 
@@ -159,7 +157,7 @@ static void __ref asmp_work_fn(struct work_struct *work) {
 	fast_load_lc = cpu_load_lc;
 	cpu_load_bc = get_cpu_loads(0);
 	fast_load_bc = cpu_load_bc;
-	for_each_online_cpu(cpu) {
+	for_each_cpu_not(cpu, cpu_isolated_mask) {
 		if (cpu && cpu < 4) {
 			nr_cpu_online_bc++;
 			load = get_cpu_loads(cpu);
@@ -189,16 +187,16 @@ static void __ref asmp_work_fn(struct work_struct *work) {
 		slow_load_lc = cpu_load_lc;
 
 	/* Always check cpu 4 before + up nr */
-	if (cpu_online(4))
+	if (!cpu_isolated(4))
 		nr_cpu_online_lc += 1;
 
 	/* hotplug one core if all online cores are over up_load limit */
 	if (slow_load_lc > up_load_lc) {
 		if ((nr_cpu_online_lc < max_cpu_lc) &&
 		    (cycle_lc >= asmp_param.cycle_up)) {
-			cpu = cpumask_next_zero(4, cpu_online_mask);
-			if (!cpu_online(cpu)) {
-				cpu_up(cpu);
+			cpu = cpumask_next(4, cpu_isolated_mask);
+			if (cpu_isolated(cpu)) {
+				sched_unisolate_cpu(cpu);
 				cycle_lc = 0;
 			}
 		}
@@ -206,7 +204,7 @@ static void __ref asmp_work_fn(struct work_struct *work) {
 	} else if ((slow_cpu_lc > 4) && (fast_load_lc < down_load_lc)) {
 		if ((nr_cpu_online_lc > min_cpu_lc) &&
 		    (cycle_lc >= asmp_param.cycle_down)) {
- 			cpu_down(slow_cpu_lc);
+ 			sched_isolate_cpu(slow_cpu_lc);
 			cycle_lc = 0;
 		}
 	}
@@ -225,9 +223,9 @@ static void __ref asmp_work_fn(struct work_struct *work) {
 	if (slow_load_bc > up_load_bc) {
 		if ((nr_cpu_online_bc < max_cpu_bc) &&
 		    (cycle_bc >= asmp_param.cycle_up)) {
-			cpu = cpumask_next_zero(0, cpu_online_mask);
-			if (!cpu_online(cpu)) {
-				cpu_up(cpu);
+			cpu = cpumask_next(0, cpu_isolated_mask);
+			if (cpu_isolated(cpu)) {
+				sched_unisolate_cpu(cpu);
 				cycle_bc = 0;
 			}
 		}
@@ -235,7 +233,7 @@ static void __ref asmp_work_fn(struct work_struct *work) {
 	} else if (slow_cpu_bc && (fast_load_bc < down_load_bc)) {
 		if ((nr_cpu_online_bc > min_cpu_bc) &&
 		    (cycle_bc >= asmp_param.cycle_down)) {
- 			cpu_down(slow_cpu_bc);
+ 			sched_isolate_cpu(slow_cpu_bc);
 			cycle_bc = 0;
 		}
 	}
@@ -248,8 +246,8 @@ static void __ref asmp_work_fn(struct work_struct *work) {
 	if (nr_cpu_online_lc < min_cpu_lc || nr_cpu_online_bc < min_cpu_bc) {
 		for_each_possible_cpu(cpu) {
 			/* Online All cores */
-			if (!cpu_online(cpu))
-				cpu_up(cpu);
+			if (cpu_isolated(cpu))
+				sched_unisolate_cpu(cpu);
 
 			update_prev_idle(cpu);
 		}
@@ -267,9 +265,9 @@ static void asmp_suspend(void)
 	cancel_delayed_work_sync(&asmp_work);
 
 	/* leave only cpu 0 and cpu 4 to stay online */
-	for_each_online_cpu(cpu) {
+	for_each_cpu_not(cpu, cpu_isolated_mask) {
 		if (cpu && cpu != 4)
-			cpu_down(cpu);
+			sched_isolate_cpu(cpu);
 	}
 }
 
@@ -279,8 +277,8 @@ static void __ref asmp_resume(void)
 
 	/* Force all cpu's to online when resumed */
 	for_each_possible_cpu(cpu) {
-		if (!cpu_online(cpu))
-			cpu_up(cpu);
+		if (cpu_isolated(cpu))
+			sched_unisolate_cpu(cpu);
 
 		update_prev_idle(cpu);
 	}
@@ -332,8 +330,8 @@ static int __ref asmp_start(void)
 
 	for_each_possible_cpu(cpu) {
 		/* Online All cores */
-		if (!cpu_online(cpu))
-			cpu_up(cpu);
+		if (cpu_isolated(cpu))
+			sched_unisolate_cpu(cpu);
 
 		update_prev_idle(cpu);
 	}
@@ -376,8 +374,8 @@ static void __ref asmp_stop(void)
 	fb_unregister_client(&asmp_nb);
 
 	for_each_possible_cpu(cpu) {
-		if (!cpu_online(cpu))
-			cpu_up(cpu);
+		if (cpu_isolated(cpu))
+			sched_unisolate_cpu(cpu);
 	}
 
 	started = false;

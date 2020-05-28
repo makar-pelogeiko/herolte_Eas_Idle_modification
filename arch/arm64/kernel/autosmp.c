@@ -312,9 +312,6 @@ static int asmp_notifier_cb(struct notifier_block *nb,
 	return 0;
 }
 
-#ifdef CONFIG_SCHED_CORE_CTL
-extern void disable_core_control(bool disable);
-#endif
 static int __ref asmp_start(void)
 {
 	unsigned int cpu = 0;
@@ -354,9 +351,6 @@ static int __ref asmp_start(void)
 	return ret;
 
 err_out:
-#ifdef CONFIG_SCHED_CORE_CTL
-	disable_core_control(false);
-#endif
 	asmp_enabled = 0;
 	return ret;
 }
@@ -386,9 +380,6 @@ static void __ref asmp_stop(void)
 	pr_info(ASMP_TAG"disabled\n");
 }
 
-#ifdef CONFIG_AIO_HOTPLUG
-extern int AiO_HotPlug;
-#endif
 static int set_enabled(const char *val,
 			     const struct kernel_param *kp)
 {
@@ -396,26 +387,9 @@ static int set_enabled(const char *val,
 
 	ret = param_set_bool(val, kp);
 	if (asmp_enabled) {
-#ifdef CONFIG_AIO_HOTPLUG
-		if (AiO_HotPlug) {
-			asmp_enabled = 0;
-			pr_info(ASMP_TAG"You can't enable more than 1 hotplug!\n");
-			return ret;
-		}
-#endif
-#ifdef CONFIG_SCHED_CORE_CTL
-		disable_core_control(true);
-#endif
 		asmp_start();
 	} else {
-#ifdef CONFIG_AIO_HOTPLUG
-		if (AiO_HotPlug)
-			return ret;
-#endif
 		asmp_stop();
-#ifdef CONFIG_SCHED_CORE_CTL
-		disable_core_control(false);
-#endif
 	}
 	return ret;
 }

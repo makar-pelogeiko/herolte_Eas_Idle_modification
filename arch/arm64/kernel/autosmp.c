@@ -66,15 +66,15 @@ static struct asmp_param_struct {
 	unsigned int cycle_up;
 	unsigned int cycle_down;
 } asmp_param = {
-	.delay = 100,
+	.delay = 80,
 	.scroff_single_core = true,
 	.max_cpus_bc = 4, /* Max cpu Big cluster ! */
 	.max_cpus_lc = 4, /* Max cpu Little cluster ! */
 	.min_cpus_bc = 2, /* Minimum Big cluster online */
 	.min_cpus_lc = 2, /* Minimum Little cluster online */
-	.cpufreq_up_bc = 80,
+	.cpufreq_up_bc = 65,
 	.cpufreq_up_lc = 70,
-	.cpufreq_down_bc = 25,
+	.cpufreq_down_bc = 35,
 	.cpufreq_down_lc = 30,
 	.cycle_up = 1,
 	.cycle_down = 1,
@@ -268,9 +268,13 @@ static void asmp_suspend(void)
 	cancel_delayed_work_sync(&asmp_work);
 
 	/* leave only cpu 0 and cpu 4 to stay online */
-	for_each_cpu_not(cpu, cpu_isolated_mask) {
-		if (cpu && cpu != 4)
-			sched_isolate_cpu(cpu);
+	for_each_online_cpu(cpu) {
+		if (cpu && cpu != 4) {
+			if (cpumask_test_cpu(cpu, cpu_isolated_mask))
+				sched_unisolate_cpu(cpu);
+
+			cpu_down(cpu);
+		}
 	}
 }
 
@@ -280,8 +284,8 @@ static void __ref asmp_resume(void)
 
 	/* Force all cpu's to online when resumed */
 	for_each_possible_cpu(cpu) {
-		if (cpu_isolated(cpu))
-			sched_unisolate_cpu(cpu);
+		if (!cpu_online(cpu))
+			cpu_up(cpu);
 
 		update_prev_idle(cpu);
 	}

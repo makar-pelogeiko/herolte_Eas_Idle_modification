@@ -2516,7 +2516,7 @@ __update_load_avg(u64 now, int cpu, struct sched_avg *sa,
 		return 0;
 	sa->last_update_time = now;
 
-	if (!cfs_rq && !rt_rq)
+	if (!cfs_rq)
 		ontime_update_load_avg(delta, cpu, weight, sa);
 
 	scale_freq = arch_scale_freq_capacity(NULL, cpu);
@@ -4490,6 +4490,26 @@ unsigned long boosted_cpu_util(int cpu);
 #define boosted_cpu_util(cpu) cpu_util_freq(cpu)
 #endif
 
+#ifdef CONFIG_SMP
+static inline int sd_overutilized(struct sched_domain *sd)
+{
+	return READ_ONCE(sd->overutilized);
+}
+
+static inline void update_overutilized_status(struct rq *rq)
+{
+	struct sched_domain *sd;
+
+	rcu_read_lock();
+	sd = rcu_dereference(rq->sd);
+	if (sd && !sd_overutilized(sd) && cpu_overutilized(rq->cpu))
+		WRITE_ONCE(sd->overutilized, 1);
+	rcu_read_unlock();
+}
+#else
+static inline void update_overutilized_status(struct rq *rq) {}
+#endif /* CONFIG_SMP */
+
 /*
  * The enqueue_task method is called before nr_running is
  * increased. Here we update the fair scheduling stats and
@@ -4563,8 +4583,10 @@ enqueue_task_fair(struct rq *rq, struct task_struct *p, int flags)
 		update_cfs_shares(se);
 	}
 
-	if (!se)
+	if (!se) {
 		add_nr_running(rq, 1);
+		update_overutilized_status(rq);
+	}
 
 #ifdef CONFIG_SMP
 	if (!se) {
@@ -7683,6 +7705,7 @@ struct sd_lb_stats {
 	struct sched_group *local;	/* Local group in this sd */
 	unsigned long total_load;	/* Total load of all groups in sd */
 	unsigned long total_capacity;	/* Total capacity of all groups in sd */
+	unsigned long total_util;	/* Total util of all groups in sd */
 	unsigned long avg_load;	/* Average load across all groups in sd */
 
 	struct sg_lb_stats busiest_stat;/* Statistics of the busiest group */
@@ -7702,6 +7725,7 @@ static inline void init_sd_lb_stats(struct sd_lb_stats *sds)
 		.local = NULL,
 		.total_load = 0UL,
 		.total_capacity = 0UL,
+		.total_util = 0UL,
 		.busiest_stat = {
 			.avg_load = 0UL,
 			.sum_nr_running = 0,
@@ -8301,6 +8325,7 @@ next_group:
 		/* Now, start updating sd_lb_stats */
 		sds->total_load += sgs->group_load;
 		sds->total_capacity += sgs->group_capacity;
+		sds->total_util += sgs->group_util;
 
 		sg = sg->next;
 	} while (sg != env->sd->groups);
@@ -8318,11 +8343,13 @@ next_group:
 		/* Update over-utilization (tipping point, U >= 0) indicator */
 		if (env->dst_rq->rd->overutilized != overutilized) {
 			env->dst_rq->rd->overutilized = overutilized;
+			WRITE_ONCE(env->sd->overutilized, overutilized);
 			trace_sched_overutilized(overutilized);
 		}
 	} else {
 		if (!env->dst_rq->rd->overutilized && overutilized) {
 			env->dst_rq->rd->overutilized = true;
+			WRITE_ONCE(env->sd->overutilized, 1);
 			trace_sched_overutilized(true);
 		}
 	}
@@ -9841,6 +9868,7 @@ static void task_tick_fair(struct rq *rq, struct task_struct *curr, int queued)
 	rq->misfit_task = !task_fits_max(curr, rq->cpu);
 #endif
 
+	update_overutilized_status(rq);
 }
 
 /*

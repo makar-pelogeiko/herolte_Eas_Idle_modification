@@ -528,6 +528,46 @@
 		boot_lock_time = <40>;
 	};
 
+	schedutil_gov {
+		schedutil_domain0: domain@0 {
+			device_type = "schedutil-domain";
+			shared-cpus = "0-3";
+			enabled = <1>;          /* Enabled */
+			expired_time = <20>;    /* 20ms */
+			qos_min_class = <3>;
+		};
+
+		schedutil_domain1: domain@1 {
+			device_type = "schedutil-domain";
+			shared-cpus = "4-7";
+			enabled = <1>;          /* Enabled */
+			expired_time = <20>;    /* 20ms */
+			qos_min_class = <5>;
+		};
+	};
+
+	schedutil {
+		domain@0 {
+			device_type = "freqvar-tune";
+			shared-cpus = "0-3";
+
+			boost_table = < 0 >;
+			up_rate_limit_table = < 5000 1248000 20000 >;
+			down_rate_limit_table = < 20000 >;
+			upscale_ratio_table = < 80 1248000 100 >;
+		};
+
+		domain@1 {
+			device_type = "freqvar-tune";
+			shared-cpus = "4-7";
+
+			boost_table = < 0 >;
+			up_rate_limit_table = < 5000 1937000 20000 >;
+			down_rate_limit_table = < 20000 >;
+			upscale_ratio_table = < 80 962000 90 1703000 93 >;
+		};
+	};
+
 	cpufreq {
 		compatible = "samsung,exynos-mp-cpufreq";
 

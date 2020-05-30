@@ -4529,7 +4529,7 @@ static inline void update_overutilized_status(struct rq *rq)
 			overutilized = cpu_overutilized(rq->cpu);
 
 		if (overutilized)
-			set_sd_overutilized(sd);
+			WRITE_ONCE(sd->overutilized, overutilized);
 	}
 	rcu_read_unlock();
 }

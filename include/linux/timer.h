@@ -88,8 +88,14 @@ extern struct tvec_base boot_tvec_bases;
 #define TIMER_INITIALIZER(_function, _expires, _data)		\
 	__TIMER_INITIALIZER((_function), (_expires), (_data), 0)
 
+#define TIMER_PINNED_INITIALIZER(_function, _expires, _data)	\
+	__TIMER_INITIALIZER((_function), (_expires), (_data), TIMER_PINNED)
+
 #define TIMER_DEFERRED_INITIALIZER(_function, _expires, _data)	\
 	__TIMER_INITIALIZER((_function), (_expires), (_data), TIMER_DEFERRABLE)
+
+#define TIMER_PINNED_DEFERRED_INITIALIZER(_function, _expires, _data)	\
+	__TIMER_INITIALIZER((_function), (_expires), (_data), TIMER_DEFERRABLE | TIMER_PINNED)
 
 #define DEFINE_TIMER(_name, _function, _expires, _data)		\
 	struct timer_list _name =				\
@@ -134,8 +140,12 @@ static inline void init_timer_on_stack_key(struct timer_list *timer,
 
 #define init_timer(timer)						\
 	__init_timer((timer), 0)
+#define init_timer_pinned(timer)					\
+	__init_timer((timer), TIMER_PINNED)
 #define init_timer_deferrable(timer)					\
 	__init_timer((timer), TIMER_DEFERRABLE)
+#define init_timer_pinned_deferrable(timer)				\
+	__init_timer((timer), TIMER_DEFERRABLE | TIMER_PINNED)
 #define init_timer_on_stack(timer)					\
 	__init_timer_on_stack((timer), 0)
 
@@ -155,10 +165,16 @@ static inline void init_timer_on_stack_key(struct timer_list *timer,
 
 #define setup_timer(timer, fn, data)					\
 	__setup_timer((timer), (fn), (data), 0)
+#define setup_pinned_timer(timer, fn, data)				\
+	__setup_timer((timer), (fn), (data), TIMER_PINNED)
 #define setup_timer_on_stack(timer, fn, data)				\
 	__setup_timer_on_stack((timer), (fn), (data), 0)
+#define setup_pinned_timer_on_stack(timer, fn, data)			\
+	__setup_timer_on_stack((timer), (fn), (data), TIMER_PINNED)
 #define setup_deferrable_timer_on_stack(timer, fn, data)		\
 	__setup_timer_on_stack((timer), (fn), (data), TIMER_DEFERRABLE)
+#define setup_pinned_deferrable_timer_on_stack(timer, fn, data)		\
+	__setup_timer_on_stack((timer), (fn), (data), TIMER_DEFERRABLE | TIMER_PINNED)
 
 /**
  * timer_pending - is a timer pending?

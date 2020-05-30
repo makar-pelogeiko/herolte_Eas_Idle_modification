@@ -5118,7 +5118,7 @@ static inline bool energy_aware(void)
 	return sched_feat(ENERGY_AWARE);
 }
 
-static int cpu_util_wake(int cpu, struct task_struct *p);
+int cpu_util_wake(int cpu, struct task_struct *p);
 
 /*
  * __cpu_norm_util() returns the cpu util relative to a specific capacity,
@@ -6116,7 +6116,7 @@ done:
  * rq->curr. For that case we should return cpu util with contributions from
  * currently running task p removed.
  */
-static int cpu_util_wake(int cpu, struct task_struct *p)
+int cpu_util_wake(int cpu, struct task_struct *p)
 {
 	unsigned long util, capacity;
 

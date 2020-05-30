@@ -29,7 +29,7 @@ extern int find_best_target(struct task_struct *p, int *backup_cpu,
 extern u64 decay_load(u64 val, u64 n);
 extern int start_cpu(bool boosted);
 
-unsigned long task_util(struct task_struct *p)
+unsigned long ehmp_task_util(struct task_struct *p)
 {
 	if (rt_task(p))
 		return p->rt.avg.util_avg;
@@ -714,7 +714,7 @@ static int check_migration_task(struct task_struct *p)
 	return !p->se.avg.last_update_time;
 }
 
-unsigned long cpu_util_wake(int cpu, struct task_struct *p)
+unsigned long ehmp_cpu_util_wake(int cpu, struct task_struct *p)
 {
 	unsigned long util, capacity;
 
@@ -723,7 +723,7 @@ unsigned long cpu_util_wake(int cpu, struct task_struct *p)
 		return cpu_util(cpu);
 
 	capacity = capacity_orig_of(cpu);
-	util = max_t(long, cpu_util(cpu) - task_util(p), 0);
+	util = max_t(long, cpu_util(cpu) - ehmp_task_util(p), 0);
 
 	return (util >= capacity) ? capacity : util;
 }
@@ -752,7 +752,7 @@ static int find_group_boost_target(struct task_struct *p)
 	}
 
 	for_each_cpu_and(cpu, tsk_cpus_allowed(p), sched_group_cpus(sd->groups)) {
-		unsigned long util = cpu_util_wake(cpu, p);
+		unsigned long util = ehmp_cpu_util_wake(cpu, p);
 
 		if (idle_cpu(cpu)) {
 			struct cpuidle_state *idle;
@@ -833,8 +833,8 @@ find_boost_target(struct sched_domain *sd, struct task_struct *p,
 			if (!cpu_online(i))
 				continue;
 
-			wake_util = cpu_util_wake(i, p);
-			new_util = wake_util + task_util(p);
+			wake_util = ehmp_cpu_util_wake(i, p);
+			new_util = wake_util + ehmp_task_util(p);
 			new_util = max(min_util, new_util);
 
 			if (min(new_util + boost, max_capacity) > capacity_orig_of(i)) {
@@ -932,11 +932,11 @@ static int find_prefer_idle_target(struct sched_domain *sd,
 			if (!cpu_online(i))
 				continue;
 
-			wake_util = cpu_util_wake(i, p);
-			new_util = wake_util + task_util(p);
+			wake_util = ehmp_cpu_util_wake(i, p);
+			new_util = wake_util + ehmp_task_util(p);
 			new_util = max(min_util, new_util);
 
-			trace_ehmp_prefer_idle(p, task_cpu(p), i, task_util(p),
+			trace_ehmp_prefer_idle(p, task_cpu(p), i, ehmp_task_util(p),
 							new_util, idle_cpu(i));
 
 			if (new_util > capacity_orig_of(i)) {

@@ -1560,7 +1560,6 @@ cpu_has_rt_task(int cpu)
 	return rq->rt.rt_nr_running > 0 || per_cpu(incoming_rt_task, cpu);
 }
 
-#ifdef CONFIG_SMP
 static int find_lowest_rq(struct task_struct *task, int sync);
 
 /*

@@ -11,3 +11,4 @@ static const u32 runnable_avg_yN_inv[] = {
 
 #define LOAD_AVG_PERIOD 32
 #define LOAD_AVG_MAX 47742
+#define LOAD_AVG_MAX_N 345 /* number of full periods to produce LOAD_AVG_MAX */

@@ -319,6 +319,53 @@
 				>;
 			};
 		};
+
+		ems {
+			/* Ontime Migration */
+			ontime {
+				/* little cores */
+				coregroup0 {
+					lower-boundary = <0>;
+					upper-boundary = <42>;
+					coverage-ratio = <100>;
+				};
+				/* big cores */
+				coregroup1 {
+					lower-boundary = <3>;
+					upper-boundary = <100>;
+					coverage-ratio = <75>;
+				};
+			};
+
+			/* Load Balance Trigger */
+			#define DEFAULT_RATIO	80
+			lbt {
+				overutil-level0 {
+					cpus =	"0-3",
+						"4-7";
+					ratio =	<30>,
+						<40>;
+				};
+				overutil-level1 {
+					cpus =	"0-7";
+					ratio =	<DEFAULT_RATIO>;
+				};
+			};
+
+			/* FRT Migration */
+			frt {
+				/* little cores */
+				coregroup0 {
+					coverage-ratio = <30>;
+					active-ratio = <25>;
+				};
+				/* big cores */
+				coregroup1 {
+					coverage-ratio = <30>;
+					active-ratio = <5>;
+				};
+			};
+		};
 	};
 
 	coresight@16000000 {

@@ -195,7 +195,7 @@ fail_alloc:
 	return -ENOMEM;
 }
 
-static int __init lbt_sysfs_init(void)
+int __init lbt_sysfs_init(struct kobject *parent)
 {
 	int depth = get_topology_depth();
 	int i;
@@ -219,7 +219,7 @@ static int __init lbt_sysfs_init(void)
 
 	lbt_group.attrs = lbt_attrs;
 
-	lbt_kobj = kobject_create_and_add("lbt", ems_kobj);
+	lbt_kobj = kobject_create_and_add("lbt", parent);
 	if (!lbt_kobj)
 		goto out;
 
@@ -235,7 +235,6 @@ out:
 	pr_err("LBT(%s): failed to create sysfs node\n", __func__);
 	return -EINVAL;
 }
-late_initcall(lbt_sysfs_init);
 
 /****************************************************************/
 /*			Initialization				*/

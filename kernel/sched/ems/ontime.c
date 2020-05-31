@@ -734,7 +734,7 @@ fail_alloc:
 	return -ENOMEM;
 }
 
-static int __init ontime_sysfs_init(void)
+int __init ontime_sysfs_init(struct kobject *parent)
 {
 	struct ontime_cond *cond = ontime_cond;
 	int count, step, i;
@@ -802,7 +802,7 @@ skip:
 
 	ontime_group.attrs = ontime_attrs;
 
-	ontime_kobj = kobject_create_and_add("ontime", ems_kobj);
+	ontime_kobj = kobject_create_and_add("ontime", parent);
 	if (!ontime_kobj)
 		goto out;
 
@@ -817,7 +817,6 @@ out:
 	pr_err("ONTIME(%s): failed to create sysfs node\n", __func__);
 	return -EINVAL;
 }
-late_initcall(ontime_sysfs_init);
 
 /****************************************************************/
 /*			initialization				*/

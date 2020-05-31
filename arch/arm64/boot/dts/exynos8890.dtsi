@@ -331,7 +331,7 @@
 				};
 				/* big cores */
 				coregroup1 {
-					lower-boundary = <3>;
+					lower-boundary = <20>;
 					upper-boundary = <100>;
 					coverage-ratio = <75>;
 				};

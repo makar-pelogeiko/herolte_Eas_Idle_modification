@@ -128,8 +128,7 @@
 			reg = <0x0 0x100>;
 			enable-method = "psci";
 			cpu-idle-states = <&CPU_SLEEP_BOOT>;
-			efficiency = <1024>;
-			sched-energy-costs = <&CPU_COST_0 &CLUSTER_COST_0>;
+			sched-energy-data = <&A53_ENERGY>;
 		};
 		cpu@101 {
 			device_type = "cpu";
@@ -137,8 +136,7 @@
 			reg = <0x0 0x101>;
 			enable-method = "psci";
 			cpu-idle-states = <&CPU_SLEEP_BOOT>;
-			efficiency = <1024>;
-			sched-energy-costs = <&CPU_COST_0 &CLUSTER_COST_0>;
+			sched-energy-data = <&A53_ENERGY>;
 		};
 		cpu@102 {
 			device_type = "cpu";
@@ -146,8 +144,7 @@
 			reg = <0x0 0x102>;
 			enable-method = "psci";
 			cpu-idle-states = <&CPU_SLEEP_BOOT>;
-			efficiency = <1024>;
-			sched-energy-costs = <&CPU_COST_0 &CLUSTER_COST_0>;
+			sched-energy-data = <&A53_ENERGY>;
 		};
 		cpu@103 {
 			device_type = "cpu";
@@ -155,8 +152,7 @@
 			reg = <0x0 0x103>;
 			enable-method = "psci";
 			cpu-idle-states = <&CPU_SLEEP_BOOT>;
-			efficiency = <1024>;
-			sched-energy-costs = <&CPU_COST_0 &CLUSTER_COST_0>;
+			sched-energy-data = <&A53_ENERGY>;
 		};
 		cpu@0 {
 			device_type = "cpu";
@@ -164,8 +160,7 @@
 			reg = <0x0 0x0>;
 			enable-method = "psci";
 			cpu-idle-states = <&CPU_SLEEP_NONBOOT>;
-			efficiency = <1536>;
-			sched-energy-costs = <&CPU_COST_1 &CLUSTER_COST_1>;
+			sched-energy-data = <&M1_ENERGY>;
 		};
 		cpu@1 {
 			device_type = "cpu";
@@ -173,8 +168,7 @@
 			reg = <0x0 0x1>;
 			enable-method = "psci";
 			cpu-idle-states = <&CPU_SLEEP_NONBOOT>;
-			efficiency = <1536>;
-			sched-energy-costs = <&CPU_COST_1 &CLUSTER_COST_1>;
+			sched-energy-data = <&M1_ENERGY>;
 		};
 		cpu@2 {
 			device_type = "cpu";
@@ -182,8 +176,7 @@
 			reg = <0x0 0x2>;
 			enable-method = "psci";
 			cpu-idle-states = <&CPU_SLEEP_NONBOOT>;
-			efficiency = <1536>;
-			sched-energy-costs = <&CPU_COST_1 &CLUSTER_COST_1>;
+			sched-energy-data = <&M1_ENERGY>;
 		};
 		cpu@3 {
 			device_type = "cpu";
@@ -191,8 +184,7 @@
 			reg = <0x0 0x3>;
 			enable-method = "psci";
 			cpu-idle-states = <&CPU_SLEEP_NONBOOT>;
-			efficiency = <1536>;
-			sched-energy-costs = <&CPU_COST_1 &CLUSTER_COST_1>;
+			sched-energy-data = <&M1_ENERGY>;
 		};
 
 		idle-states {
@@ -219,104 +211,14 @@
 			};
 		};
 
-		energy-costs {
-			CPU_COST_0: core-cost0 {
-				busy-cost-data = <
-					442000 22
-					546000 39
-					650000 50
-					754000 61
-					858000 73
-					962000 84
-					1066000 98
-					1170000 128
-					1274000 156
-					1378000 192
-					1482000 220
-					1586000 250
-				>;
-				idle-cost-data = <
-					1
-					0
-					0
-				>;
+		energy-data {
+			A53_ENERGY: a53-energy {
+				capacity-mips = <230>;
+				power-coefficient = <124>;
 			};
-			CPU_COST_1: core-cost1 {
-				busy-cost-data = <
-					728000 215
-					832000 273
-					936000 395
-					1040000 534
-					1144000 689
-					1248000 795
-					1352000 1007
-					1456000 1260
-					1560000 1521
-					1664000 1855
-					1768000 2206
-					1872000 2557
-					1976000 3128
-					2080000 3642
-					2184000 4172
-					2288000 4996
-					2392000 5690
-					2496000 6448
-					2600000 7533
-				>;
-				idle-cost-data = <
-					10
-					0
-					0
-				>;
-			};
-			CLUSTER_COST_0: cluster-cost0 {
-				busy-cost-data = <
-					442000 1
-					546000 3
-					650000 3
-					754000 5
-					858000 8
-					962000 9
-					1066000 12
-					1170000 16
-					1274000 19
-					1378000 22
-					1482000 27
-					1586000 34
-				>;
-				idle-cost-data = <
-					5
-					5
-					0
-				>;
-			};
-			CLUSTER_COST_1: cluster-cost1 {
-				busy-cost-data = <
-					728000 69
-					832000 74
-					936000 87
-					1040000 115
-					1144000 144
-					1248000 176
-					1352000 217
-					1456000 262
-					1560000 311
-					1664000 376
-					1768000 443
-					1872000 534
-					1976000 621
-					2080000 820
-					2184000 962
-					2288000 1016
-					2392000 1151
-					2496000 1302
-					2600000 1418
-				>;
-				idle-cost-data = <
-					268
-					268
-					0
-				>;
+			M1_ENERGY: m1-energy {
+				capacity-mips = <318>;
+				power-coefficient = <465>;
 			};
 		};
 

@@ -35,6 +35,7 @@
 #include <linux/platform_device.h>
 #include <linux/of.h>
 #include <linux/apm-exynos.h>
+#include <linux/ems.h>
 
 #include <linux/sysfs_helpers.h>
 
@@ -2594,6 +2595,7 @@ static int exynos_mp_cpufreq_parse_dt(struct device_node *np, cluster_type cl)
 	char *cluster_name;
 	int ret;
 	int not_using_ect = true;
+	int max_f, min_f;
 
 	if (!np) {
 		pr_info("%s: cpufreq_dt is not existed. \n", __func__);
@@ -2609,6 +2611,8 @@ static int exynos_mp_cpufreq_parse_dt(struct device_node *np, cluster_type cl)
 	if (of_property_read_u32(np, (cl ? "cl1_max_support_idx" : "cl0_max_support_idx"),
 				&ptr->max_support_idx))
 		return -ENODEV;
+
+	unsigned long f_table[ptr->max_support_idx];
 
 	if (of_property_read_u32(np, (cl ? "cl1_min_support_idx" : "cl0_min_support_idx"),
 				&ptr->min_support_idx))
@@ -2722,6 +2726,7 @@ static int exynos_mp_cpufreq_parse_dt(struct device_node *np, cluster_type cl)
 			ptr->freq_table[i].frequency = table_ptr[i].frequency;
 			ptr->volt_table[i] = table_ptr[i].voltage;
 			ptr->bus_table[i] = table_ptr[i].bus_qos_lock;
+			f_table[i] = exynos_info[cl]->freq_table[i].frequency;
 		}
 
 		kfree(table_ptr);
@@ -2729,6 +2734,12 @@ static int exynos_mp_cpufreq_parse_dt(struct device_node *np, cluster_type cl)
 
 	ptr->freq_table[ptr->max_idx_num].driver_data = ptr->max_idx_num;
 	ptr->freq_table[ptr->max_idx_num].frequency = CPUFREQ_TABLE_END;
+
+	max_f = exynos_info[cl]->freq_table[exynos_info[cl]->max_support_idx].frequency;
+	min_f = exynos_info[cl]->freq_table[exynos_info[cl]->min_support_idx].frequency;
+
+	init_sched_energy_table(&cluster_cpus[cl], ptr->max_support_idx, f_table,
+				exynos_info[cl]->volt_table, max_f, min_f);
 
 	return 0;
 }

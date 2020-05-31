@@ -12,6 +12,7 @@ struct cpu_topology {
 };
 
 extern struct cpu_topology cpu_topology[NR_CPUS];
+extern void set_capacity_scale(unsigned int cpu, unsigned long capacity);
 
 #define topology_physical_package_id(cpu)	(cpu_topology[cpu].cluster_id)
 #define topology_core_id(cpu)		(cpu_topology[cpu].core_id)

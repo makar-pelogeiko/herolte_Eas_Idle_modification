@@ -6,6 +6,7 @@
  */
 
 #include <linux/of.h>
+#include <asm/topology.h>
 
 #include <trace/events/ems.h>
 
@@ -296,7 +297,7 @@ int select_energy_cpu(struct task_struct *p, int prev_cpu, int sd_flag, int sync
 	 */
 	rcu_read_lock();
 	sd = rcu_dereference_sched(cpu_rq(prev_cpu)->sd);
-	if (!sd || sd->shared->overutilized) {
+	if (!sd || sd->overutilized) {
 		rcu_read_unlock();
 		return -1;
 	}
@@ -480,7 +481,7 @@ void init_sched_energy_table(struct cpumask *cpus, int table_size,
 		show_energy_table(table, cpu);
 
 		last_state = table->nr_states - 1;
-		topology_set_cpu_scale(cpu, table->states[last_state].cap);
+		set_capacity_scale(cpu, table->states[last_state].cap);
 
 		rcu_read_lock();
 		for_each_domain(cpu, sd)

@@ -32,7 +32,7 @@ unsigned long scale_cpu_capacity(struct sched_domain *sd, int cpu)
 	return per_cpu(cpu_scale, cpu);
 }
 
-static void set_capacity_scale(unsigned int cpu, unsigned long capacity)
+void set_capacity_scale(unsigned int cpu, unsigned long capacity)
 {
 	per_cpu(cpu_scale, cpu) = capacity;
 }

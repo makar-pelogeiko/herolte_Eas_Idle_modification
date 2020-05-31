@@ -252,7 +252,6 @@ out:
 	pr_err("LBT(%s): failed to create sysfs node\n", __func__);
 	return -EINVAL;
 }
-late_initcall(lbt_sysfs_init);
 
 /****************************************************************/
 /*			Initialization				*/

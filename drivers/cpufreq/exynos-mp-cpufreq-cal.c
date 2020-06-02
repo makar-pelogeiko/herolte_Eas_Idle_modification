@@ -290,6 +290,12 @@ static int exynos_mp_cpufreq_cal_init(cluster_type cluster)
 	int ret, max_f, min_f, table_size;
 	unsigned int i, j;
 
+	static unsigned long lc_cpus = 15;
+	static unsigned long bc_cpus = 240;
+
+	static struct cpumask* lc_mask = to_cpumask(&lc_cpus);
+	static struct cpumask* bc_mask = to_cpumask(&bc_cpus);
+
 	table_size = exynos_info[cluster]->min_support_idx - exynos_info[cluster]->max_support_idx;
 
 	unsigned long f_table[table_size];
@@ -318,8 +324,12 @@ static int exynos_mp_cpufreq_cal_init(cluster_type cluster)
 		pr_info("%s: Frequency = %lu Volt = %u\n", __func__, f_table[i], v_table[i]);
 	}
 
-	init_sched_energy_table(&cluster_cpus[cluster], table_size, f_table,
-				v_table, max_f, min_f);
+	if (cluster == CL_ZERO)
+		init_sched_energy_table(lc_mask, table_size, f_table,
+					v_table, max_f, min_f);
+	else
+		init_sched_energy_table(bc_mask, table_size, f_table,
+					v_table, max_f, min_f);
 
 	return 0;
 

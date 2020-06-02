@@ -214,11 +214,11 @@
 		energy-data {
 			A53_ENERGY: a53-energy {
 				capacity-mips = <230>;
-				power-coefficient = <124>;
+				power-coefficient = <120>;
 			};
 			M1_ENERGY: m1-energy {
 				capacity-mips = <318>;
-				power-coefficient = <465>;
+				power-coefficient = <700>;
 			};
 		};
 

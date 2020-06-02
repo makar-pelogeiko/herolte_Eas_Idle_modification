@@ -156,6 +156,8 @@ typedef enum {
 	CL_END,
 } cluster_type;
 
+extern struct cpumask cluster_cpus[CL_END];
+
 #if defined(CONFIG_SOC_EXYNOS8890)
 #define COLD_VOLT_OFFSET	25000
 #else

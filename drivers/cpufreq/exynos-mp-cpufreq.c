@@ -112,7 +112,7 @@ static int self_discharging;
 /* Include CPU mask of each cluster */
 cluster_type exynos_boot_cluster;
 static cluster_type boot_cluster;
-static struct cpumask cluster_cpus[CL_END];
+struct cpumask cluster_cpus[CL_END];
 
 DEFINE_PER_CPU(cluster_type, cpu_cur_cluster);
 

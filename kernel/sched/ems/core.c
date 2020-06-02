@@ -13,28 +13,14 @@
 #include "ems.h"
 #include "../sched.h"
 
-int task_util(struct task_struct *p)
+int ems_task_util(struct task_struct *p)
 {
 	return p->se.avg.util_avg;
 }
 
-int cpu_util_wake(int cpu, struct task_struct *p)
-{
-	unsigned long util, capacity;
-
-	/* Task has no contribution or is new */
-	if (cpu != task_cpu(p) || !p->se.avg.last_update_time)
-		return cpu_util(cpu);
-
-	capacity = capacity_orig_of(cpu);
-	util = max_t(long, cpu_rq(cpu)->cfs.avg.util_avg - task_util(p), 0);
-
-	return (util >= capacity) ? capacity : util;
-}
-
 static inline int task_fits(struct task_struct *p, long capacity)
 {
-	return capacity * 1024 > task_util(p) * 1248;
+	return capacity * 1024 > ems_task_util(p) * 1248;
 }
 
 struct sched_group *

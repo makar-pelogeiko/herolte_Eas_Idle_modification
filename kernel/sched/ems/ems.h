@@ -34,6 +34,6 @@ static inline int prefer_idle_cpu(struct task_struct *p) { return -1; }
 static inline int group_balancing(struct task_struct *p) { return -1; }
 #endif
 
-extern int task_util(struct task_struct *p);
+extern int ems_task_util(struct task_struct *p);
 extern int cpu_util_wake(int cpu, struct task_struct *p);
 extern unsigned int get_cpu_mips(unsigned int cpu);

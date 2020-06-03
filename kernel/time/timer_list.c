@@ -20,6 +20,7 @@
 
 #include <asm/uaccess.h>
 
+#include "tick-internal.h"
 
 struct timer_list_iter {
 	int cpu;

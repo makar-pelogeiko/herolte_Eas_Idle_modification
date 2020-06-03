@@ -13,7 +13,7 @@
 #include "ems.h"
 #include "../sched.h"
 
-int task_util(struct task_struct *p)
+int ems_task_util(struct task_struct *p)
 {
 	return p->se.avg.util_avg;
 }
@@ -72,7 +72,7 @@ int ems_cpu_util_wake(int cpu, struct task_struct *p)
 
 static inline int task_fits(struct task_struct *p, long capacity)
 {
-	return capacity * 1024 > task_util(p) * 1248;
+	return capacity * 1024 > ems_task_util(p) * 1248;
 }
 
 struct sched_group *

@@ -80,7 +80,7 @@ static void find_eco_target(struct eco_env *eenv)
 		unsigned long capacity_orig = capacity_orig_of(cpu);
 		unsigned long wake_util, new_util;
 
-		wake_util = cpu_util_wake(cpu, p);
+		wake_util = ems_cpu_util_wake(cpu, p);
 		new_util = wake_util + task_util_est(p);
 
 		/* checking prev cpu is meaningless */
@@ -159,7 +159,7 @@ static unsigned int calculate_energy(struct task_struct *p, int target_cpu)
 	 *    is assigned to target cpu.
 	 */
 	for_each_cpu(cpu, cpu_active_mask) {
-		util[cpu] = cpu_util_wake(cpu, p);
+		util[cpu] = ems_cpu_util_wake(cpu, p);
 
 		if (unlikely(cpu == target_cpu))
 			util[cpu] += task_util_est(p);

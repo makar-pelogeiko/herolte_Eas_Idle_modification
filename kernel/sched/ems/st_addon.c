@@ -102,7 +102,7 @@ static int select_idle_cpu(struct task_struct *p)
 			unsigned long capacity_orig = capacity_orig_of(i);
 			unsigned long new_util, wake_util;
 
-			wake_util = cpu_util_wake(i, p);
+			wake_util = ems_cpu_util_wake(i, p);
 			new_util = wake_util + task_util_est(p);
 
 			trace_ems_prefer_idle(p, task_cpu(p), i, capacity_orig, task_util_est(p),

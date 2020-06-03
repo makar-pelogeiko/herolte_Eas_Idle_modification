@@ -92,7 +92,7 @@ bool lbt_bring_overutilize(int cpu, struct task_struct *p)
 {
 	struct sched_domain *sd;
 	struct lbt_overutil *ou = per_cpu(lbt_overutil, cpu);
-	unsigned long util_sum = cpu_util_wake(cpu, p) + task_util(p);
+	unsigned long util_sum = ems_cpu_util_wake(cpu, p) + task_util(p);
 
 	if (!ou)
 		return false;

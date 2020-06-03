@@ -189,7 +189,7 @@ ontime_select_target_cpu(struct task_struct *p, struct cpumask *dst_cpus)
 			}
 		} else {
 			/* 2. Find cpu that have to spare */
-			unsigned long new_util = task_util(p) + cpu_util_wake(cpu, p);
+			unsigned long new_util = ems_task_util(p) + ems_cpu_util_wake(cpu, p);
 
 			if (new_util * 100 >=
 					capacity_orig_of(cpu) * get_coverage_ratio(cpu))

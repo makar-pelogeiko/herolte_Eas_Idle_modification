@@ -1560,18 +1560,6 @@ static void migrate_timer_list(struct tvec_base *new_base, struct hlist_head *he
 	}
 }
 
-static void __init init_timer_cpu(struct tvec_base *base, int cpu)
-{
-	BUG_ON(base != tbase_get_base(base));
-
-	base->cpu = cpu;
-	per_cpu(tvec_bases, cpu) = base;
-	spin_lock_init(&base->lock);
-
-	base->timer_jiffies = jiffies;
-	base->next_timer = base->timer_jiffies;
-}
-
 static void migrate_timers(int cpu)
 {
 	struct tvec_base *old_base;
@@ -1636,15 +1624,6 @@ static void __init init_timer_cpu(int cpu)
 
 	base->cpu = cpu;
 	spin_lock_init(&base->lock);
-
-	for (j = 0; j < TVN_SIZE; j++) {
-		INIT_LIST_HEAD(base->tv5.vec + j);
-		INIT_LIST_HEAD(base->tv4.vec + j);
-		INIT_LIST_HEAD(base->tv3.vec + j);
-		INIT_LIST_HEAD(base->tv2.vec + j);
-	}
-	for (j = 0; j < TVR_SIZE; j++)
-		INIT_LIST_HEAD(base->tv1.vec + j);
 
 	base->timer_jiffies = jiffies;
 	base->next_timer = base->timer_jiffies;

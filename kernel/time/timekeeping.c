@@ -597,9 +597,6 @@ ktime_t ktime_get_with_offset(enum tk_offsets offs)
 	} while (read_seqcount_retry(&tk_core.seq, seq));
 
 	return ktime_add_ns(base, nsecs);
-
-	if (action & TK_CLOCK_WAS_SET)
-		tk->clock_was_set_seq++;
 }
 EXPORT_SYMBOL_GPL(ktime_get_with_offset);
 

@@ -16,6 +16,13 @@
 #include "fimc-is-hw-dvfs.h"
 #include <linux/videodev2_exynos_camera.h>
 
+#if defined(CONFIG_SCHED_EMS)
+#include <linux/ems.h>
+static struct gb_qos_request gb_req = {
+	.name = "fimc_dvfs_global_boost",
+};
+#endif
+
 #ifdef CONFIG_PM_DEVFREQ
 extern struct pm_qos_request exynos_isp_qos_int;
 extern struct pm_qos_request exynos_isp_qos_mem;
@@ -451,10 +458,18 @@ int fimc_is_set_dvfs(struct fimc_is_core *core, struct fimc_is_device_ischain *d
 		/* for migration to big core */
 		if (hpg_qos >= 6) {
 			if (!dvfs_ctrl->cur_hmp_bst) {
+#if defined(CONFIG_SCHED_EMS)
+				/* set global boost */
+				gb_qos_update_request(&gb_req, 50);
+#endif
 				dvfs_ctrl->cur_hmp_bst = 1;
 			}
 		} else {
 			if (dvfs_ctrl->cur_hmp_bst) {
+#if defined(CONFIG_SCHED_EMS)
+				/* unset global boost */
+				gb_qos_update_request(&gb_req, 0);
+#endif
 				dvfs_ctrl->cur_hmp_bst = 0;
 			}
 		}

@@ -62,6 +62,13 @@
 #include "fimc-is-vender-specific.h"
 #include "exynos-fimc-is-module.h"
 
+#if defined(CONFIG_SCHED_EMS)
+#include <linux/ems.h>
+static struct gb_qos_request gb_req = {
+	.name = "fimc_global_boost",
+};
+#endif
+
 /* Default setting values */
 #define DEFAULT_PREVIEW_STILL_WIDTH		(1280) /* sensor margin : 16 */
 #define DEFAULT_PREVIEW_STILL_HEIGHT		(720) /* sensor margin : 12 */
@@ -2290,6 +2297,10 @@ int fimc_is_ischain_runtime_suspend(struct device *dev)
                 pm_qos_remove_request(&exynos_isp_qos_cam);
 	if (hpg_qos > 0)
                 pm_qos_remove_request(&exynos_isp_qos_hpg);
+#if defined(CONFIG_SCHED_EMS)
+	if (core->resourcemgr.dvfs_ctrl.cur_hmp_bst)
+		gb_qos_update_request(&gb_req, 0);
+#endif
 #endif
 
 	info("FIMC_IS runtime suspend out\n");

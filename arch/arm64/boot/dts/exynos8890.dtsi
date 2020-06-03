@@ -217,8 +217,8 @@
 				power-coefficient = <120>;
 			};
 			M1_ENERGY: m1-energy {
-				capacity-mips = <318>;
-				power-coefficient = <700>;
+				capacity-mips = <310>;
+				power-coefficient = <720>;
 			};
 		};
 
@@ -495,9 +495,9 @@
 			shared-cpus = "0-3";
 
 			boost_table = < 0 >;
-			up_rate_limit_table = < 5000 1248000 20000 >;
-			down_rate_limit_table = < 20000 >;
-			upscale_ratio_table = < 80 1248000 100 >;
+			up_rate_limit_table = < 2000 1274000 20000 >;
+			down_rate_limit_table = < 2000 >;
+			upscale_ratio_table = < 80 1274000 100 >;
 		};
 
 		domain@1 {
@@ -505,9 +505,9 @@
 			shared-cpus = "4-7";
 
 			boost_table = < 0 >;
-			up_rate_limit_table = < 5000 1937000 20000 >;
-			down_rate_limit_table = < 20000 >;
-			upscale_ratio_table = < 80 962000 90 1703000 93 >;
+			up_rate_limit_table = < 2000 1560000 20000 >;
+			down_rate_limit_table = < 2000 >;
+			upscale_ratio_table = < 80 936000 90 1768000 93 >;
 		};
 	};
 

@@ -510,6 +510,7 @@ static inline void print_irqtrace_events(struct task_struct *curr)
 
 #define lock_map_acquire(l)			lock_acquire_exclusive(l, 0, 0, NULL, _THIS_IP_)
 #define lock_map_acquire_read(l)		lock_acquire_shared_recursive(l, 0, 0, NULL, _THIS_IP_)
+#define lock_map_acquire_tryread(l)		lock_acquire_shared_recursive(l, 0, 1, NULL, _THIS_IP_)
 #define lock_map_release(l)			lock_release(l, 1, _THIS_IP_)
 
 #ifdef CONFIG_PROVE_LOCKING
@@ -530,8 +531,13 @@ do {									\
 # define might_lock_read(lock) do { } while (0)
 #endif
 
-#ifdef CONFIG_PROVE_RCU
+#ifdef CONFIG_LOCKDEP
 void lockdep_rcu_suspicious(const char *file, const int line, const char *s);
+#else
+static inline void
+lockdep_rcu_suspicious(const char *file, const int line, const char *s)
+{
+}
 #endif
 
 #endif /* __LINUX_LOCKDEP_H */

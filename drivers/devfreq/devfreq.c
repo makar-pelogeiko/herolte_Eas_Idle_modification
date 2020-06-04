@@ -18,7 +18,6 @@
 #include <linux/module.h>
 #include <linux/slab.h>
 #include <linux/stat.h>
-#include <linux/pm_opp.h>
 #include <linux/pm_qos.h>
 #include <linux/devfreq.h>
 #include <linux/workqueue.h>
@@ -28,6 +27,7 @@
 #include <linux/printk.h>
 #include <linux/hrtimer.h>
 #include "governor.h"
+#include "../base/power/opp/opp.h"
 
 #ifdef CONFIG_SOC_EXYNOS8890
 #define DF_MAX_VOLT		900000
@@ -1096,7 +1096,7 @@ static ssize_t volt_table_store(struct device *d, struct device_attribute *attr,
 {
 	struct devfreq *df = to_devfreq(d);
 	struct device *dev = df->dev.parent;
-	struct device_opp *dev_opp = find_device_opp(dev);
+	struct device_opp *dev_opp = _find_device_opp(dev);
 	struct dev_pm_opp *temp_opp;
 	int u[15];
 	int rest, t, i = 0;
@@ -1112,7 +1112,7 @@ static ssize_t volt_table_store(struct device *d, struct device_attribute *attr,
 
 		if ((rest = (u[1] % DF_VOLT_STEP)) != 0) 
 			u[1] += DF_VOLT_STEP - rest;
-		
+
 		sanitize_min_max(u[1], DF_MIN_VOLT, DF_MAX_VOLT);
 		temp_opp->u_volt = u[1];
 	} else {
@@ -1120,7 +1120,7 @@ static ssize_t volt_table_store(struct device *d, struct device_attribute *attr,
 			if (temp_opp->available) {
 				if ((rest = (u[i] % DF_VOLT_STEP)) != 0) 
 					u[i] += DF_VOLT_STEP - rest;
-				
+
 				sanitize_min_max(u[i], DF_MIN_VOLT, DF_MAX_VOLT);
 				temp_opp->u_volt = u[i++];
 			}
@@ -1137,7 +1137,7 @@ static ssize_t volt_table_show(struct device *d,
 {
 	struct devfreq *df = to_devfreq(d);
 	struct device *dev = df->dev.parent;
-	struct device_opp *dev_opp = find_device_opp(dev);
+	struct device_opp *dev_opp = _find_device_opp(dev);
 	struct dev_pm_opp *temp_opp;
 	int len = 0;
 

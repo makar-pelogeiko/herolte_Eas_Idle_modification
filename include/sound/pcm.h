@@ -98,7 +98,7 @@ struct snd_pcm_ops {
 #define SNDRV_PCM_IOCTL1_TRUE		((void *)1)
 
 #define SNDRV_PCM_IOCTL1_RESET		0
-#define SNDRV_PCM_IOCTL1_INFO		1
+/* 1 is absent slot. */
 #define SNDRV_PCM_IOCTL1_CHANNEL_INFO	2
 #define SNDRV_PCM_IOCTL1_GSTATE		3
 #define SNDRV_PCM_IOCTL1_FIFO_SIZE	4
@@ -340,10 +340,6 @@ struct snd_pcm_runtime {
 	/* -- hardware description -- */
 	struct snd_pcm_hardware hw;
 	struct snd_pcm_hw_constraints hw_constraints;
-
-	/* -- interrupt callbacks -- */
-	void (*transfer_ack_begin)(struct snd_pcm_substream *substream);
-	void (*transfer_ack_end)(struct snd_pcm_substream *substream);
 
 	/* -- timer -- */
 	unsigned int timer_resolution;	/* timer resolution */

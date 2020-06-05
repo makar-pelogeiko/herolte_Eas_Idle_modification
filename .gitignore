@@ -15,16 +15,19 @@
 *.a
 *.s
 *.ko
+*.so
 *.so.dbg
 *.mod.c
 *.i
 *.lst
 *.symtypes
 *.order
+*.elf
 *.bin
 *.gz
 *.bz2
 *.lzma
+*.xz
 *.lz4
 *.lzo
 *.patch
@@ -54,7 +57,6 @@ Module.symvers
 #
 !.gitignore
 !.mailmap
-!.placeholder
 
 #
 # Generated include files
@@ -97,3 +99,11 @@ all.config
 
 # fetched Android config fragments
 android/configs/android-*.cfg
+scripts/dtbtool_exynos/dtbtool
+Edge_build.log
+arch/arm64/boot/dtb/ 
+drivers/gator/gator_src_md5.h
+security/selinux_n/av_permissions.h
+security/selinux_n/flask.h
+build/*.zip
+arch/arm64/configs/tmp_defconfig

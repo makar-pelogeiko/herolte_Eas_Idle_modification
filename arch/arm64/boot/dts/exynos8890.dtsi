@@ -122,25 +122,13 @@
 		#address-cells = <2>;
 		#size-cells = <0>;
 
-		hmp {
-			up_threshold = <524>;
-			down_threshold = <214>;
-			semiboost_up_threshold = <254>;
-			semiboost_down_threshold = <163>;
-			bootboost-duration-us = <40000000>;
-
-			down_compensation_timeout = <30>;		/* ms */
-			down_compensation_high_freq = <1170000>;	/* min qos lock for little cpu */
-			down_compensation_mid_freq = <962000>;		/* min qos lock for little cpu */
-			down_compensation_low_freq = <858000>;		/* min qos lock for little cpu */
-		};
-
 		cpu@100 {
 			device_type = "cpu";
 			compatible = "arm,cortex-a53", "arm,armv8";
 			reg = <0x0 0x100>;
 			enable-method = "psci";
 			cpu-idle-states = <&CPU_SLEEP_BOOT>;
+			sched-energy-costs = <&CPU_COST_0 &CLUSTER_COST_0>;
 		};
 		cpu@101 {
 			device_type = "cpu";
@@ -148,6 +136,7 @@
 			reg = <0x0 0x101>;
 			enable-method = "psci";
 			cpu-idle-states = <&CPU_SLEEP_BOOT>;
+			sched-energy-costs = <&CPU_COST_0 &CLUSTER_COST_0>;
 		};
 		cpu@102 {
 			device_type = "cpu";
@@ -155,6 +144,7 @@
 			reg = <0x0 0x102>;
 			enable-method = "psci";
 			cpu-idle-states = <&CPU_SLEEP_BOOT>;
+			sched-energy-costs = <&CPU_COST_0 &CLUSTER_COST_0>;
 		};
 		cpu@103 {
 			device_type = "cpu";
@@ -162,6 +152,7 @@
 			reg = <0x0 0x103>;
 			enable-method = "psci";
 			cpu-idle-states = <&CPU_SLEEP_BOOT>;
+			sched-energy-costs = <&CPU_COST_0 &CLUSTER_COST_0>;
 		};
 		cpu@0 {
 			device_type = "cpu";
@@ -169,6 +160,7 @@
 			reg = <0x0 0x0>;
 			enable-method = "psci";
 			cpu-idle-states = <&CPU_SLEEP_NONBOOT>;
+			sched-energy-costs = <&CPU_COST_1 &CLUSTER_COST_1>;
 		};
 		cpu@1 {
 			device_type = "cpu";
@@ -176,6 +168,7 @@
 			reg = <0x0 0x1>;
 			enable-method = "psci";
 			cpu-idle-states = <&CPU_SLEEP_NONBOOT>;
+			sched-energy-costs = <&CPU_COST_1 &CLUSTER_COST_1>;
 		};
 		cpu@2 {
 			device_type = "cpu";
@@ -183,6 +176,7 @@
 			reg = <0x0 0x2>;
 			enable-method = "psci";
 			cpu-idle-states = <&CPU_SLEEP_NONBOOT>;
+			sched-energy-costs = <&CPU_COST_1 &CLUSTER_COST_1>;
 		};
 		cpu@3 {
 			device_type = "cpu";
@@ -190,6 +184,7 @@
 			reg = <0x0 0x3>;
 			enable-method = "psci";
 			cpu-idle-states = <&CPU_SLEEP_NONBOOT>;
+			sched-energy-costs = <&CPU_COST_1 &CLUSTER_COST_1>;
 		};
 
 		idle-states {
@@ -213,6 +208,113 @@
 				exit-latency-us = <75>;
 				min-residency-us = <2000>;
 				status = "okay";
+			};
+		};
+
+		energy-costs {
+			CPU_COST_0: core-cost0 {
+				busy-cost-data = <
+					42 13
+					55 16
+					68 23
+					81 31
+					94 39
+					107 49
+					120 60
+					133 78
+					146 96
+					159 116
+					172 132
+					185 169
+					198 207
+				>;
+				idle-cost-data = <
+					5
+					5
+					0
+				>;
+			};
+			CPU_COST_1: core-cost1 {
+				busy-cost-data = <
+					205 128
+					246 160
+					287 200
+					328 247
+					369 306
+					410 373
+					451 454
+					492 554
+					532 676
+					573 824
+					614 1005
+					655 1226
+					696 1495
+					737 1801
+					778 2169
+					819 2614
+					860 3149
+					901 3794
+					942 4517
+					983 5377
+					1024 6326
+				>;
+				idle-cost-data = <
+					15
+					10
+					0
+				>;
+			};
+			CLUSTER_COST_0: cluster-cost0 {
+				busy-cost-data = <
+					42 3
+					55 5
+					68 7
+					81 9
+					94 11
+					107 14
+					120 18
+					133 23
+					146 28
+					159 34
+					172 39
+					185 50
+					198 61
+				>;
+				idle-cost-data = <
+					1
+					1
+					0
+				>;
+			};
+			CLUSTER_COST_1: cluster-cost1 {
+				busy-cost-data = <
+					205 46
+					246 58
+					287 72
+					328 89
+					369 110
+					410 134
+					451 163
+					492 199
+					532 243
+					573 296
+					614 361
+					655 440
+					696 537
+					737 647
+					778 761
+					819 917
+					860 1105
+					901 1331
+					942 1585
+					983 1887
+					1024 2220
+				>;
+				idle-cost-data = <
+					50
+					50
+					0
+				>;
 			};
 		};
 	};
@@ -425,7 +527,7 @@
 		/* APO */
 		cl0_idx_num = <19>;
 		cl0_max_support_idx = <4>;
-		cl0_min_support_idx = <15>;
+		cl0_min_support_idx = <16>;
 		cl0_boot_max_qos = <1586000>;
 		cl0_boot_min_qos = <1586000>;
 		cl0_en_ema = <1>;
@@ -434,7 +536,7 @@
 		/* MNGS */
 		cl1_idx_num = <28>;
 		cl1_max_support_idx = <7>;
-		cl1_min_support_idx = <22>;
+		cl1_min_support_idx = <24>;
 		cl1_boot_max_qos = <2288000>;
 		cl1_boot_min_qos = <2288000>;
 		cl1_en_ema = <1>;

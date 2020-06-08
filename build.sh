@@ -119,6 +119,7 @@ CONFIG_HALL_EVENT_REVERSE=y
 			CROSS_COMPILE=$GCC_DIR || exit -1
 	elif [ $CC_NAME == "gcc" ]; then
 		make -j$BUILD_JOB_NUMBER ARCH=$ARCH \
+			CONFIG_DEBUG_SECTION_MISMATCH=y \
 			CROSS_COMPILE=$GCC_DIR || exit -1
 	fi
 

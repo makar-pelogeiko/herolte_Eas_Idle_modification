@@ -15,6 +15,9 @@
  * Copyright (C) 2018, Ryan Andri (Rainforce279) <ryanandri@linuxmail.org>
  * 		 Adaptation for Octa core processor.
  *
+ * Copyright (C) 2020, Samuel Pascua (pascua28@xda) <sgpascua@ngcp.ph>
+ *		Adaptations for Exynos 8890
+ *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or

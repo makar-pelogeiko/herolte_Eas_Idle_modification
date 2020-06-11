@@ -52,8 +52,6 @@ static bool started = false;
 static struct asmp_param_struct {
 	unsigned int delay;
 	bool scroff_single_core;
-	unsigned int max_cpus;
-	unsigned int min_cpus;
 	unsigned int cpufreq_up;
 	unsigned int cpufreq_down;
 	unsigned int cycle_up;
@@ -61,8 +59,6 @@ static struct asmp_param_struct {
 } asmp_param = {
 	.delay = 100,
 	.scroff_single_core = true,
-	.max_cpus = 4,
-	.min_cpus = 2,
 	.cpufreq_up = 80,
 	.cpufreq_down = 25,
 	.cycle_up = 1,
@@ -113,9 +109,12 @@ static void __ref asmp_work_fn(struct work_struct *work) {
 	unsigned int cpu_load = 0, fast_load = 0;
 	unsigned int slow_load = 100;
 	unsigned int up_load = 0, down_load = 0;
-	unsigned int max_cpu = 0;
-	unsigned int min_cpu = 0;
+	unsigned int max_cpu = 4;
+	unsigned int min_cpu = 2;
 	int nr_cpu_online = 0;
+
+	static unsigned long fast_cpus = 192;
+	static struct cpumask* fast_cpus_mask = to_cpumask(&fast_cpus);
 
 	/* Perform always check cpu 4 */
 	if (!cpu_online(4))
@@ -130,8 +129,6 @@ static void __ref asmp_work_fn(struct work_struct *work) {
 
 	up_load   = asmp_param.cpufreq_up;
 	down_load = asmp_param.cpufreq_down;
-	max_cpu = asmp_param.max_cpus;
-	min_cpu = asmp_param.min_cpus;
 
 	/* find current max and min cpu freq to estimate load */
 	get_online_cpus();
@@ -164,17 +161,14 @@ static void __ref asmp_work_fn(struct work_struct *work) {
 	if (slow_load > up_load) {
 		if ((nr_cpu_online < max_cpu) &&
 		    (cycle >= asmp_param.cycle_up)) {
-			cpu = cpumask_next_zero(4, cpu_online_mask);
-			if (!cpu_online(cpu)) {
-				cpu_up(cpu);
-				cycle = 0;
-			}
+			cpus_up(fast_cpus_mask);
+			cycle = 0;
 		}
 	/* unplug slowest core if all online cores are under down_load limit */
 	} else if ((slow_cpu > 4) && (fast_load < down_load)) {
 		if ((nr_cpu_online > min_cpu) &&
 		    (cycle >= asmp_param.cycle_down)) {
- 			cpu_down(slow_cpu);
+ 			cpus_down(fast_cpus_mask);
 			cycle = 0;
 		}
 	}
@@ -359,8 +353,6 @@ static ssize_t show_##file_name						\
 }
 show_one(delay, delay);
 show_one(scroff_single_core, scroff_single_core);
-show_one(min_cpus, min_cpus);
-show_one(max_cpus, max_cpus);
 show_one(cpufreq_up, cpufreq_up);
 show_one(cpufreq_down, cpufreq_down);
 show_one(cycle_up, cycle_up);
@@ -386,56 +378,9 @@ store_one(cpufreq_down, cpufreq_down);
 store_one(cycle_up, cycle_up);
 store_one(cycle_down, cycle_down);
 
-static ssize_t store_max_cpus(struct kobject *a,
-		      struct attribute *b, const char *buf, size_t count)
-{
-	unsigned int input;
-	int ret;
-
-	ret = sscanf(buf, "%u", &input);
-	if (ret != 1 ||
-		input < asmp_param.min_cpus)
-		return -EINVAL;
-
-	if (input < 1)
-		input = 1;
-	else if  (input > 4)
-		input = 4;
-
-	asmp_param.max_cpus = input;
-
-	return count;
-}
-
-static ssize_t store_min_cpus(struct kobject *a,
-		      struct attribute *b, const char *buf, size_t count)
-{
-	unsigned int input;
-	int ret;
-
-	ret = sscanf(buf, "%u", &input);
-	if (ret != 1 ||
-		input > asmp_param.max_cpus)
-		return -EINVAL;
-
-	if (input < 1)
-		input = 1;
-	else if (input > 4)
-		input = 4;
-
-	asmp_param.min_cpus = input;
-
-	return count;
-}
-
-define_one_global_rw(min_cpus);
-define_one_global_rw(max_cpus);
-
 static struct attribute *asmp_attributes[] = {
 	&delay.attr,
 	&scroff_single_core.attr,
-	&min_cpus.attr,
-	&max_cpus.attr,
 	&cpufreq_up.attr,
 	&cpufreq_down.attr,
 	&cycle_up.attr,

@@ -275,7 +275,7 @@ static inline bool irqd_irq_inprogress(struct irq_data *d)
 
 static inline bool irqd_is_wakeup_armed(struct irq_data *d)
 {
-	return d->state_use_accessors & IRQD_WAKEUP_ARMED;
+	return __irqd_to_state(d) & IRQD_WAKEUP_ARMED;
 }
 
 

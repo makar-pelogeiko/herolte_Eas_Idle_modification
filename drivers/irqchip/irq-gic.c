@@ -226,7 +226,7 @@ static int gic_set_affinity(struct irq_data *d, const struct cpumask *mask_val,
 	u32 val, mask, bit;
 
 	raw_spin_lock(&irq_controller_lock);
-	if (unlikely(d->state_use_accessors & IRQD_GIC_MULTI_TARGET)) {
+	if (unlikely(__irqd_to_state(d) & IRQD_GIC_MULTI_TARGET)) {
 		struct cpumask temp_mask;
 
 		bit = 0;

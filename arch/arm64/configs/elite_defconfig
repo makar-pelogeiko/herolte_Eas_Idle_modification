@@ -3937,8 +3937,8 @@ CONFIG_SEC_HOTPLUG=y
 #
 # Samsung TN logging feature
 #
-CONFIG_SEC_AVC_LOG=y
-CONFIG_SEC_DEBUG_TSP_LOG=y
+# CONFIG_SEC_AVC_LOG is not set
+# CONFIG_SEC_DEBUG_TSP_LOG is not set
 
 #
 # Samsung TN Power Management Options

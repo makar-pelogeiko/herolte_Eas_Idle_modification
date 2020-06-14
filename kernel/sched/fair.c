@@ -2701,24 +2701,6 @@ static inline void cfs_rq_util_change(struct cfs_rq *cfs_rq)
 
 static inline u64 cfs_rq_clock_task(struct cfs_rq *cfs_rq);
 
-/* Global switch between power-aware migrations and classical GTS. */
-static unsigned int hmp_power_migration = 1;
-
-/* Performance threshold for guaranteeing an up migration. */
-static unsigned int hmp_up_perf_threshold = 597;
-
-/* Capacity floor for checking cluster perf and efficiency. */
-static unsigned int hmp_up_power_threshold = 341;
-
-/*
- * Maximum total capacity difference in load scale percentage to enact scheduler power migration.
- * 
- */
-#define UP_PERF_HYS_DEF		SCHED_LOAD_SCALE * 0.04
-#define DOWN_PERF_HYS_DEF	SCHED_LOAD_SCALE * 0.09
-static unsigned int hmp_up_perf_hysteresis = UP_PERF_HYS_DEF;
-static unsigned int hmp_down_perf_hysteresis = DOWN_PERF_HYS_DEF;
-
 #define NUM_CLUSTERS	2
 
 /*
@@ -2826,30 +2808,6 @@ void sched_update_cpu_efficiency_table(struct cpu_cluster_efficiency *ceff,
 		 fast_cap_max, fast_cap_min, fast_cap_range, fast_cap_step,
 		 cap_max, cap_min, cap_range);
 #endif
-}
-
-static inline unsigned int is_efficient_up(unsigned int load_ratio)
-{
-	if (fast.efficiency > slow.efficiency)
-		if (((slow.capacity * (SCHED_LOAD_SCALE + hmp_up_perf_hysteresis)) >> SCHED_LOAD_SHIFT) < fast.capacity)
-			return 1;
-	
-	return 0;
-}
-
-static inline unsigned int is_efficient_down(unsigned int load_ratio)
-{
-	int cap_ratio;
-	
-	cap_ratio = (load_ratio << SCHED_LOAD_SHIFT) / fast_step_ratio;
-	cap_ratio = (cap_ratio * fast_cap_step) >> SCHED_LOAD_SHIFT;
-	cap_ratio = (cap_ratio * fast_cap_max) / fast_cap_range;
-	
-	if (slow.efficiency > fast.efficiency)
-		if (slow.capacity > ((cap_ratio * (SCHED_LOAD_SCALE + hmp_down_perf_hysteresis)) >> SCHED_LOAD_SHIFT))
-			return 1;
-	
-	return 0;
 }
 
  /*

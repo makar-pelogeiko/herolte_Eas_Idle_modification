@@ -2229,5 +2229,5 @@ static void __exit thermal_exit(void)
 	mutex_destroy(&thermal_governor_lock);
 }
 
-fs_initcall(thermal_init);
+core_initcall(thermal_init);
 module_exit(thermal_exit);

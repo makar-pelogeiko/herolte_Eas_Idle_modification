@@ -777,6 +777,8 @@ static int max77854_haptic_probe(struct platform_device *pdev)
 	struct max77854_haptic_drvdata *drvdata;
 	struct task_struct *kworker_task;
 
+	struct sched_param param = { .sched_priority = MAX_RT_PRIO - 1 };
+
 #if defined(CONFIG_OF)
 	if (pdata == NULL) {
 		pdata = of_max77854_haptic_dt(&pdev->dev);
@@ -806,6 +808,7 @@ static int max77854_haptic_probe(struct platform_device *pdev)
 	drvdata->duty = pdata->duty;
 
 	init_kthread_worker(&drvdata->kworker);
+
 	mutex_init(&drvdata->mutex);
 	kworker_task = kthread_run(kthread_worker_fn,
 		   &drvdata->kworker, "max77854_haptic");
@@ -814,6 +817,8 @@ static int max77854_haptic_probe(struct platform_device *pdev)
 		error = -ENOMEM;
 		goto err_kthread;
 	}
+
+	sched_setscheduler(kworker_task, SCHED_FIFO, &param);
 
 	init_kthread_work(&drvdata->kwork, haptic_work);
 

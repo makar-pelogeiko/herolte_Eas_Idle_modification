@@ -94,6 +94,16 @@ CONFIG_SENSORS_HERO2=y
 " >> .config
 	fi
 
+	if [ $ROM_VER == "10" ]; then
+		scripts/configcleaner "
+CONFIG_ALWAYS_PERMISSIVE
+"
+		echo "
+# CONFIG_ALWAYS_PERMISSIVE is not set
+"
+>> .config
+	fi
+
 	mv .config $RDIR/arch/$ARCH/configs/tmp_defconfig
 
 	#FUNC_CLEAN_DTB

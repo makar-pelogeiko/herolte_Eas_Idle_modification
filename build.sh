@@ -100,8 +100,7 @@ CONFIG_ALWAYS_PERMISSIVE
 "
 		echo "
 # CONFIG_ALWAYS_PERMISSIVE is not set
-"
->> .config
+" >> .config
 	fi
 
 	mv .config $RDIR/arch/$ARCH/configs/tmp_defconfig

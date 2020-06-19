@@ -92,7 +92,6 @@ CONFIG_PANEL_S6E3HF4_WQHD=y
 CONFIG_SENSORS_SX9310_NORMAL_TOUCH_THRESHOLD=168
 CONFIG_SENSORS_HERO2=y
 " >> .config
-
 	fi
 
 	mv .config $RDIR/arch/$ARCH/configs/tmp_defconfig
@@ -166,8 +165,12 @@ FUNC_BUILD_RAMDISK()
 	cd $RDIR/build
 	mkdir temp
 	cp -rf aik/. temp
-	cp -rf ramdisk/. temp
-	
+	if [ $ROM_VER == "9" ]; then
+		cp -rf ramdisk/. temp
+	elif [ $ROM_VER == "10" ]; then
+		cp -rf Q/. temp
+	fi
+
 	rm -f temp/split_img/boot.img-zImage
 	rm -f temp/split_img/boot.img-dtb
 	mv $RDIR/arch/$ARCH/boot/boot.img-zImage temp/split_img/boot.img-zImage
@@ -183,8 +186,10 @@ FUNC_BUILD_RAMDISK()
 
 		sed -i 's/SRPOI30A000KU/SRPOI17A000KU/g' split_img/boot.img-board
 
-		sed -i 's/G935/G930/g' ramdisk/default.prop
-		sed -i 's/hero2/hero/g' ramdisk/default.prop
+		if [ $ROM_VER == "9" ]; then
+			sed -i 's/G935/G930/g' p/default.prop
+			sed -i 's/hero2/hero/g' p/default.prop
+		fi
 		;;
 	esac
 
@@ -284,6 +289,25 @@ elif [ $ccprompt == "2" ]; then
     echo "
 Using clang
 
+"
+fi
+
+echo "**********************************"
+echo "Select ROM:"
+echo "(1) OneUI 1.0"
+echo "(2) OneUI 2.0"
+read -p "Selected ROM: " romprompt
+
+if [ $romprompt == "1" ]; then
+     ROM_VER=9
+     echo "
+Compiling for OneUI 1.0
+"
+
+elif [ $romprompt == "2" ]; then
+    ROM_VER=10
+    echo "
+Compiling for OneUI 2.0
 "
 fi
 

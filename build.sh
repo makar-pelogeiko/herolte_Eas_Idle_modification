@@ -14,7 +14,7 @@
 export ARCH=arm64
 export SUBARCH=arm64
 export GCC_DIR=/usr/bin/aarch64-linux-gnu-
-export CLANG_DIR=/home/pascua14/clang/bin/clang
+export CLANG_DIR=~/clang/bin/clang
 export BUILD_JOB_NUMBER=`grep processor /proc/cpuinfo|wc -l`
 
 export PLATFORM_VERSION=9.0.0

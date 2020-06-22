@@ -96,11 +96,9 @@ CONFIG_SENSORS_HERO2=y
 
 	if [ $ROM_VER == "10" ]; then
 		scripts/configcleaner "
-CONFIG_ALWAYS_PERMISSIVE
 CONFIG_HALL_EVENT_REVERSE
 "
 		echo "
-# CONFIG_ALWAYS_PERMISSIVE is not set
 CONFIG_HALL_EVENT_REVERSE=y
 " >> .config
 	fi

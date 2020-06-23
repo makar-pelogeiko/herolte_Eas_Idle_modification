@@ -15,20 +15,24 @@
 *.a
 *.s
 *.ko
+*.so
 *.so.dbg
 *.mod.c
 *.i
 *.lst
 *.symtypes
 *.order
+*.elf
 *.bin
 *.gz
 *.bz2
 *.lzma
+*.xz
 *.lz4
 *.lzo
 *.patch
 *.gcno
+*.ll
 modules.builtin
 Module.symvers
 *.dwo
@@ -54,7 +58,6 @@ Module.symvers
 #
 !.gitignore
 !.mailmap
-!.placeholder
 
 #
 # Generated include files
@@ -97,14 +100,11 @@ all.config
 
 # fetched Android config fragments
 android/configs/android-*.cfg
-build_kernel.sh
-env_setup.sh
-arch/arm64/crypto/sha256-core.S
-arch/arm64/crypto/sha512-core.S
-output/
-scripts/dtbTool/
-drivers/gpu/arm/mali400/ump/arch
-security/selinux/flask.h
-security/selinux/av_permissions.h
-fips_fmp_utils
-drivers/gpu/arm/mali400/ump/arch
+scripts/dtbtool_exynos/dtbtool
+Edge_build.log
+arch/arm64/boot/dtb/ 
+drivers/gator/gator_src_md5.h
+security/selinux_n/av_permissions.h
+security/selinux_n/flask.h
+build/*.zip
+arch/arm64/configs/tmp_defconfig

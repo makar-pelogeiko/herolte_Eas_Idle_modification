@@ -69,7 +69,11 @@
 #include <net/pkt_cls.h>
 #include <linux/if_vlan.h>
 #include <net/tcp.h>
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 2, 0)
+#include <net/flow_keys.h>
+#else
 #include <net/flow_dissector.h>
+#endif
 #include "cobalt_compat.h"
 
 #if IS_REACHABLE(CONFIG_NF_CONNTRACK)
@@ -640,13 +644,25 @@ static void cake_update_flowkeys(struct flow_keys *keys,
 		tuple = nf_ct_tuple(ct, !hash->tuple.dst.dir);
 	}
 
-	keys->addrs.src = rev ? tuple->dst.u3.ip : tuple->src.u3.ip;
-	keys->addrs.dst = rev ? tuple->src.u3.ip : tuple->dst.u3.ip;
+#if KERNEL_VERSION(4, 2, 0) > LINUX_VERSION_CODE
+	keys->src = rev ? tuple->dst.u3.ip : tuple->src.u3.ip;
+	keys->dst = rev ? tuple->src.u3.ip : tuple->dst.u3.ip;
+#else
+	keys->addrs.v4addrs.src = rev ? tuple->dst.u3.ip : tuple->src.u3.ip;
+	keys->addrs.v4addrs.dst = rev ? tuple->src.u3.ip : tuple->dst.u3.ip;
+#endif
 
-	if (keys->ports.ports) {
-		keys->ports.port16[0] = rev ? tuple->dst.u.all : tuple->src.u.all;
-		keys->ports.port16[1] = rev ? tuple->src.u.all : tuple->dst.u.all;
+#if KERNEL_VERSION(4, 2, 0) > LINUX_VERSION_CODE
+	if (keys->ports) {
+		keys->port16[0] = rev ? tuple->dst.u.all : tuple->src.u.all;
+		keys->port16[1] = rev ? tuple->src.u.all : tuple->dst.u.all;
 	}
+#else
+	if (keys->ports.ports) {
+		keys->ports.src = rev ? tuple->dst.u.all : tuple->src.u.all;
+		keys->ports.dst = rev ? tuple->src.u.all : tuple->dst.u.all;
+	}
+#endif
 	if (rev)
 		nf_ct_put(ct);
 }
@@ -677,7 +693,11 @@ static u32 cake_hash(struct cake_tin_data *q, const struct sk_buff *skb,
 {
 	u32 flow_hash = 0, srchost_hash = 0, dsthost_hash = 0;
 	u16 reduced_hash, srchost_idx, dsthost_idx;
+#if KERNEL_VERSION(4, 2, 0) > LINUX_VERSION_CODE
 	struct flow_keys keys;
+#else
+	struct flow_keys keys, host_keys;
+#endif
 
 	if (unlikely(flow_mode == CAKE_FLOW_NONE))
 		return 0;
@@ -687,10 +707,76 @@ static u32 cake_hash(struct cake_tin_data *q, const struct sk_buff *skb,
 	    (host_override || !(flow_mode & CAKE_FLOW_HOSTS)))
 		goto skip_hash;
 
-	skb_flow_dissect_flow_keys(skb, &keys);
+#if KERNEL_VERSION(4, 2, 0) > LINUX_VERSION_CODE
+	skb_flow_dissect(skb, &keys);
 
 	if (flow_mode & CAKE_FLOW_NAT_FLAG)
 		cake_update_flowkeys(&keys, skb);
+
+	srchost_hash = jhash_1word((__force u32)keys.src, q->perturb);
+	dsthost_hash = jhash_1word((__force u32)keys.dst, q->perturb);
+
+	if (flow_mode & CAKE_FLOW_FLOWS)
+		flow_hash = jhash_3words((__force u32)keys.dst, (__force u32)keys.src ^ keys.ip_proto, (__force u32)keys.ports, q->perturb);
+
+#else
+
+/* Linux kernel 4.2.x have skb_flow_dissect_flow_keys which takes only 2
+ * arguments
+ */
+#if (KERNEL_VERSION(4, 2, 0) <= LINUX_VERSION_CODE) && (KERNEL_VERSION(4, 3, 0) >  LINUX_VERSION_CODE)
+	skb_flow_dissect_flow_keys(skb, &keys);
+#else
+	skb_flow_dissect_flow_keys(skb, &keys,
+				   FLOW_DISSECTOR_F_STOP_AT_FLOW_LABEL);
+#endif
+
+	if (flow_mode & CAKE_FLOW_NAT_FLAG)
+		cake_update_flowkeys(&keys, skb);
+
+	/* flow_hash_from_keys() sorts the addresses by value, so we have
+	 * to preserve their order in a separate data structure to treat
+	 * src and dst host addresses as independently selectable.
+	 */
+	host_keys = keys;
+	host_keys.ports.ports     = 0;
+	host_keys.basic.ip_proto  = 0;
+	host_keys.keyid.keyid     = 0;
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4, 8, 0)
+	host_keys.tags.vlan_id    = 0;
+#endif
+	host_keys.tags.flow_label = 0;
+
+	switch (host_keys.control.addr_type) {
+	case FLOW_DISSECTOR_KEY_IPV4_ADDRS:
+		host_keys.addrs.v4addrs.src = 0;
+		dsthost_hash = flow_hash_from_keys(&host_keys);
+		host_keys.addrs.v4addrs.src = keys.addrs.v4addrs.src;
+		host_keys.addrs.v4addrs.dst = 0;
+		srchost_hash = flow_hash_from_keys(&host_keys);
+		break;
+
+	case FLOW_DISSECTOR_KEY_IPV6_ADDRS:
+		memset(&host_keys.addrs.v6addrs.src, 0,
+		       sizeof(host_keys.addrs.v6addrs.src));
+		dsthost_hash = flow_hash_from_keys(&host_keys);
+		host_keys.addrs.v6addrs.src = keys.addrs.v6addrs.src;
+		memset(&host_keys.addrs.v6addrs.dst, 0,
+		       sizeof(host_keys.addrs.v6addrs.dst));
+		srchost_hash = flow_hash_from_keys(&host_keys);
+		break;
+
+	default:
+		dsthost_hash = 0;
+		srchost_hash = 0;
+	}
+
+	/* This *must* be after the above switch, since as a
+	 * side-effect it sorts the src and dst addresses.
+	 */
+	if (flow_mode & CAKE_FLOW_FLOWS)
+		flow_hash = flow_hash_from_keys(&keys);
+#endif
 
 skip_hash:
 	if (flow_override)

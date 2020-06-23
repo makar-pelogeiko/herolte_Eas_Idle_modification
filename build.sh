@@ -28,7 +28,7 @@ INCDIR=$RDIR/include
 PAGE_SIZE=2048
 DTB_PADDING=0
 
-DEFCONFIG=elite_defconfig
+DEFCONFIG=herolte_defconfig
 
 export K_NAME="Elite-Kernel"
 export KBUILD_BUILD_VERSION="1"

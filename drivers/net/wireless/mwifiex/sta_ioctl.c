@@ -226,6 +226,7 @@ static int mwifiex_process_country_ie(struct mwifiex_private *priv,
 
 	if (country_ie_len >
 	    (IEEE80211_COUNTRY_STRING_LEN + MWIFIEX_MAX_TRIPLET_802_11D)) {
+		rcu_read_unlock();
 		wiphy_dbg(priv->wdev->wiphy,
 			  "11D: country_ie_len overflow!, deauth AP\n");
 		return -EINVAL;
@@ -316,6 +317,7 @@ int mwifiex_bss_start(struct mwifiex_private *priv, struct cfg80211_bss *bss,
 			dev_err(adapter->dev,
 				"Attempt to reconnect on csa closed chan(%d)\n",
 				bss_desc->channel);
+			ret = -1;
 			goto done;
 		}
 

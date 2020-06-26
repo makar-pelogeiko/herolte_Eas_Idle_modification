@@ -1,5 +1,8 @@
 #ifndef __NET_SCHED_COBALT_COMPAT_H
 #define __NET_SCHED_COBALT_COMPAT_H
+
+#include <linux/version.h>
+
 /* Backport some stuff if needed.
  */
 #if KERNEL_VERSION(3, 11, 0) > LINUX_VERSION_CODE

@@ -5673,8 +5673,10 @@ static int wake_cap(struct task_struct *p, int cpu, int prev_cpu)
 
 static int select_energy_cpu_brute(struct task_struct *p, int prev_cpu, int sync)
 {
-	int target_cpu = prev_cpu, tmp_target;
-	bool boosted, prefer_idle;
+	int i;
+	int min_diff = 0, energy_cpu = prev_cpu, spare_cpu = prev_cpu;
+	unsigned long max_spare = 0;
+	struct sched_domain *sd;
 
 	if (sysctl_sched_sync_hint_enable && sync) {
 		int cpu = smp_processor_id();
@@ -5684,40 +5686,52 @@ static int select_energy_cpu_brute(struct task_struct *p, int prev_cpu, int sync
 			return cpu;
 	}
 
-#ifdef CONFIG_CGROUP_SCHEDTUNE
-	boosted = schedtune_task_boost(p) > 0;
-	prefer_idle = schedtune_prefer_idle(p) > 0;
-#else
-	boosted = get_sysctl_sched_cfs_boost() > 0;
-	prefer_idle = 0;
-#endif
+	rcu_read_lock();
 
-	/* Find a cpu with sufficient capacity */
-	tmp_target = find_best_target(p, boosted, prefer_idle);
+	sd = rcu_dereference(per_cpu(sd_ea, prev_cpu));
 
-	if (tmp_target >= 0) {
-		target_cpu = tmp_target;
-		if ((boosted || prefer_idle) && idle_cpu(target_cpu))
-			return target_cpu;
-	}
+	if (!sd)
+		goto unlock;
 
-	if (target_cpu != prev_cpu) {
+	for_each_cpu_and(i, tsk_cpus_allowed(p), sched_domain_span(sd)) {
+		int diff;
+		unsigned long spare;
+
 		struct energy_env eenv = {
-			.util_delta     = task_util(p),
-			.src_cpu        = prev_cpu,
-			.dst_cpu        = target_cpu,
-			.task           = p,
+			.util_delta	= task_util(p),
+			.src_cpu	= prev_cpu,
+			.dst_cpu	= i,
+			.task		= p,
 		};
 
-		/* Not enough spare capacity on previous cpu */
-		if (cpu_overutilized(prev_cpu))
-			return target_cpu;
+		spare = capacity_spare_wake(i, p);
 
-		if (energy_diff(&eenv) >= 0)
-			return prev_cpu;
+		if (i == prev_cpu)
+			continue;
+
+		if (spare > max_spare) {
+			max_spare = spare;
+			spare_cpu = i;
+		}
+
+		if (spare * 1024 < capacity_margin * task_util(p))
+			continue;
+
+		diff = energy_diff(&eenv);
+
+		if (diff < min_diff) {
+			min_diff = diff;
+			energy_cpu = i;
+		}
 	}
 
-	return target_cpu;
+unlock:
+	rcu_read_unlock();
+
+	if (energy_cpu == prev_cpu && !cpu_overutilized(prev_cpu))
+		return prev_cpu;
+
+	return energy_cpu != prev_cpu ? energy_cpu : spare_cpu;
 }
 
 /*

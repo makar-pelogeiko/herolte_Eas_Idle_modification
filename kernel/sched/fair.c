@@ -4382,7 +4382,7 @@ unsigned long boosted_cpu_util(int cpu);
 #define boosted_cpu_util(cpu) cpu_util(cpu)
 #endif
 
-#ifdef CONFIG_SMP
+#ifdef CONFIG_CPU_FREQ_GOV_SCHED
 static void update_capacity_of(int cpu)
 {
 	unsigned long req_cap;

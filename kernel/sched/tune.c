@@ -12,7 +12,7 @@
 #include "tune.h"
 
 #ifdef CONFIG_CGROUP_SCHEDTUNE
-bool schedtune_initialized = false;
+static bool schedtune_initialized = false;
 #endif
 
 int sysctl_sched_cfs_boost __read_mostly;
@@ -534,9 +534,6 @@ int schedtune_task_boost(struct task_struct *p)
 	struct schedtune *st;
 	int task_boost;
 
-	if (!unlikely(schedtune_initialized))
-		return 0;
-
 	/* Get task boost value */
 	rcu_read_lock();
 	st = task_schedtune(p);
@@ -550,9 +547,6 @@ int schedtune_prefer_idle(struct task_struct *p)
 {
 	struct schedtune *st;
 	int prefer_idle;
-
-	if (!unlikely(schedtune_initialized))
-		return 0;
 
 	/* Get prefer_idle value */
 	rcu_read_lock();

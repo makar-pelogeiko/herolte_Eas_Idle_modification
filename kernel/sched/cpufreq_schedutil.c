@@ -469,10 +469,8 @@ static struct kobj_type sugov_tunables_ktype = {
 };
 
 /********************** cpufreq governor interface *********************/
-#ifndef CONFIG_CPU_FREQ_DEFAULT_GOV_SCHEDUTIL
-static
-#endif
-struct cpufreq_governor cpufreq_gov_schedutil;
+
+static struct cpufreq_governor schedutil_gov;
 
 static struct sugov_policy *sugov_policy_alloc(struct cpufreq_policy *policy)
 {
@@ -613,7 +611,7 @@ static int sugov_init(struct cpufreq_policy *policy)
 
 	ret = kobject_init_and_add(&tunables->attr_set.kobj, &sugov_tunables_ktype,
 				   get_governor_parent_kobj(policy), "%s",
-				   cpufreq_gov_schedutil.name);
+				   schedutil_gov.name);
 	if (ret)
 		goto fail;
 
@@ -751,7 +749,7 @@ static int cpufreq_schedutil_cb(struct cpufreq_policy *policy,
 #ifndef CONFIG_CPU_FREQ_DEFAULT_GOV_SCHEDUTIL
 static
 #endif
-struct cpufreq_governor cpufreq_gov_schedutil = {
+struct cpufreq_governor schedutil_gov = {
 	.name = "schedutil",
 	.governor = cpufreq_schedutil_cb,
 	.owner = THIS_MODULE,
@@ -759,6 +757,6 @@ struct cpufreq_governor cpufreq_gov_schedutil = {
 
 static int __init sugov_register(void)
 {
-	return cpufreq_register_governor(&cpufreq_gov_schedutil);
+	return cpufreq_register_governor(&schedutil_gov);
 }
 fs_initcall(sugov_register);

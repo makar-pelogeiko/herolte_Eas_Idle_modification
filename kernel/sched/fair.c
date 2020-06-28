@@ -5782,24 +5782,15 @@ static int select_idle_sibling(struct task_struct *p, int prev, int target)
 	int best_idle_cstate = INT_MAX;
 	unsigned long best_idle_capacity = ULONG_MAX;
 
-	schedstat_inc(p, se.statistics.nr_wakeups_sis_attempts);
-	schedstat_inc(this_rq(), eas_stats.sis_attempts);
-
 	if (!sysctl_sched_cstate_aware) {
-		if (idle_cpu(target)) {
-			schedstat_inc(p, se.statistics.nr_wakeups_sis_idle);
-			schedstat_inc(this_rq(), eas_stats.sis_idle);
+		if (idle_cpu(target))
 			return target;
-		}
 
 		/*
 		 * If the prevous cpu is cache affine and idle, don't be stupid.
 		 */
-		if (prev != target && cpus_share_cache(prev, target) && idle_cpu(prev)) {
-			schedstat_inc(p, se.statistics.nr_wakeups_sis_cache_affine);
-			schedstat_inc(this_rq(), eas_stats.sis_cache_affine);
+		if (prev != target && cpus_share_cache(prev, target) && idle_cpu(prev))
 			return prev;
-		}
 	}
 
 	/*
@@ -5824,12 +5815,8 @@ static int select_idle_sibling(struct task_struct *p, int prev, int target)
 					if (new_usage > capacity_orig || !idle_cpu(i))
 						goto next;
 
-					if (i == target && new_usage <= capacity_curr_of(target)) {
-						schedstat_inc(p, se.statistics.nr_wakeups_sis_suff_cap);
-						schedstat_inc(this_rq(), eas_stats.sis_suff_cap);
-						schedstat_inc(sd, eas_stats.sis_suff_cap);
+					if (i == target && new_usage <= capacity_curr_of(target))
 						return target;
-					}
 
 					if (idle_idx < best_idle_cstate &&
 					    capacity_orig <= best_idle_capacity) {
@@ -5846,9 +5833,6 @@ static int select_idle_sibling(struct task_struct *p, int prev, int target)
 
 				target = cpumask_first_and(sched_group_cpus(sg),
 					tsk_cpus_allowed(p));
-				schedstat_inc(p, se.statistics.nr_wakeups_sis_idle_cpu);
-				schedstat_inc(this_rq(), eas_stats.sis_idle_cpu);
-				schedstat_inc(sd, eas_stats.sis_idle_cpu);
 				goto done;
 			}
 next:
@@ -5860,9 +5844,6 @@ next:
 		target = best_idle_cpu;
 
 done:
-	schedstat_inc(p, se.statistics.nr_wakeups_sis_count);
-	schedstat_inc(this_rq(), eas_stats.sis_count);
-
 	return target;
 }
 
@@ -5889,22 +5870,13 @@ static inline int find_best_target(struct task_struct *p, bool boosted, bool pre
 	struct sched_group *sg;
 	int cpu = start_cpu(boosted);
 
-	schedstat_inc(p, se.statistics.nr_wakeups_fbt_attempts);
-	schedstat_inc(this_rq(), eas_stats.fbt_attempts);
-
-	if (cpu < 0) {
-		schedstat_inc(p, se.statistics.nr_wakeups_fbt_no_cpu);
-		schedstat_inc(this_rq(), eas_stats.fbt_no_cpu);
+	if (cpu < 0)
 		return target_cpu;
-	}
 
 	sd = rcu_dereference(per_cpu(sd_ea, cpu));
 
-	if (!sd) {
-		schedstat_inc(p, se.statistics.nr_wakeups_fbt_no_sd);
-		schedstat_inc(this_rq(), eas_stats.fbt_no_sd);
+	if (!sd)
 		return target_cpu;
-	}
 
 	sg = sd->groups;
 
@@ -5943,11 +5915,8 @@ static inline int find_best_target(struct task_struct *p, bool boosted, bool pre
 			 * Unconditionally favoring tasks that prefer idle cpus to
 			 * improve latency.
 			 */
-			if (idle_cpu(i) && prefer_idle) {
-				schedstat_inc(p, se.statistics.nr_wakeups_fbt_pref_idle);
-				schedstat_inc(this_rq(), eas_stats.fbt_pref_idle);
+			if (idle_cpu(i) && prefer_idle)
 				return i;
-			}
 
 			cur_capacity = capacity_curr_of(i);
 
@@ -5982,11 +5951,6 @@ static inline int find_best_target(struct task_struct *p, bool boosted, bool pre
 
 	if (target_cpu < 0)
 		target_cpu = best_idle_cpu >= 0 ? best_idle_cpu : backup_cpu;
-
-	if (target_cpu >= 0) {
-		schedstat_inc(p, se.statistics.nr_wakeups_fbt_count);
-		schedstat_inc(this_rq(), eas_stats.fbt_count);
-	}
 
 	return target_cpu;
 }
@@ -6038,17 +6002,11 @@ static int select_energy_cpu_brute(struct task_struct *p, int prev_cpu, int sync
 	int target_cpu = prev_cpu, tmp_target;
 	bool boosted, prefer_idle;
 
-	schedstat_inc(p, se.statistics.nr_wakeups_secb_attempts);
-	schedstat_inc(this_rq(), eas_stats.secb_attempts);
-
 	if (sysctl_sched_sync_hint_enable && sync) {
 		int cpu = smp_processor_id();
 
-		if (cpumask_test_cpu(cpu, tsk_cpus_allowed(p))) {
-			schedstat_inc(p, se.statistics.nr_wakeups_secb_sync);
-			schedstat_inc(this_rq(), eas_stats.secb_sync);
+		if (cpumask_test_cpu(cpu, tsk_cpus_allowed(p)))
 			return cpu;
-		}
 	}
 
 #ifdef CONFIG_CGROUP_SCHEDTUNE
@@ -6064,11 +6022,8 @@ static int select_energy_cpu_brute(struct task_struct *p, int prev_cpu, int sync
 
 	if (tmp_target >= 0) {
 		target_cpu = tmp_target;
-		if ((boosted || prefer_idle) && idle_cpu(target_cpu)) {
-			schedstat_inc(p, se.statistics.nr_wakeups_secb_idle_bt);
-			schedstat_inc(this_rq(), eas_stats.secb_idle_bt);
+		if ((boosted || prefer_idle) && idle_cpu(target_cpu))
 			return target_cpu;
-		}
 	}
 
 	if (target_cpu != prev_cpu) {
@@ -6080,26 +6035,12 @@ static int select_energy_cpu_brute(struct task_struct *p, int prev_cpu, int sync
 		};
 
 		/* Not enough spare capacity on previous cpu */
-		if (cpu_overutilized(prev_cpu)) {
-			schedstat_inc(p, se.statistics.nr_wakeups_secb_insuff_cap);
-			schedstat_inc(this_rq(), eas_stats.secb_insuff_cap);
+		if (cpu_overutilized(prev_cpu))
 			return target_cpu;
-		}
 
-		if (energy_diff(&eenv) >= 0) {
-			schedstat_inc(p, se.statistics.nr_wakeups_secb_no_nrg_sav);
-			schedstat_inc(this_rq(), eas_stats.secb_no_nrg_sav);
+		if (energy_diff(&eenv) >= 0)
 			return prev_cpu;
-		}
-
-		schedstat_inc(p, se.statistics.nr_wakeups_secb_nrg_sav);
-		schedstat_inc(this_rq(), eas_stats.secb_nrg_sav);
-
-		return target_cpu;
 	}
-
-	schedstat_inc(p, se.statistics.nr_wakeups_secb_count);
-	schedstat_inc(this_rq(), eas_stats.secb_count);
 
 	return target_cpu;
 }
@@ -6166,57 +6107,39 @@ select_task_rq_fair(struct task_struct *p, int prev_cpu, int sd_flag, int wake_f
 		if (sd_flag & SD_BALANCE_WAKE) /* XXX always ? */
 			new_cpu = select_idle_sibling(p, prev_cpu, new_cpu);
 
-	} else {
-		int wu = sd_flag & SD_BALANCE_WAKE;
-		int cas_cpu = -1;
+	} else while (sd) {
+		struct sched_group *group;
+		int weight;
 
-		if (wu) {
-			schedstat_inc(p, se.statistics.nr_wakeups_cas_attempts);
-			schedstat_inc(this_rq(), eas_stats.cas_attempts);
+		if (!(sd->flags & sd_flag)) {
+			sd = sd->child;
+			continue;
 		}
 
-		while (sd) {
-			struct sched_group *group;
-			int weight;
-
-			if (wu)
-				schedstat_inc(sd, eas_stats.cas_attempts);
-
-			if (!(sd->flags & sd_flag)) {
-				sd = sd->child;
-				continue;
-			}
-
-			group = find_idlest_group(sd, p, cpu, sd_flag);
-			if (!group) {
-				sd = sd->child;
-				continue;
-			}
-
-			new_cpu = find_idlest_cpu(group, p, cpu);
-			if (new_cpu == -1 || new_cpu == cpu) {
-				/* Now try balancing at a lower domain level of cpu */
-				sd = sd->child;
-				continue;
-			}
-
-			/* Now try balancing at a lower domain level of new_cpu */
-			cpu = cas_cpu = new_cpu;
-			weight = sd->span_weight;
-			sd = NULL;
-			for_each_domain(cpu, tmp) {
-				if (weight <= tmp->span_weight)
-					break;
-				if (tmp->flags & sd_flag)
-					sd = tmp;
-			}
-			/* while loop will break here if sd == NULL */
+		group = find_idlest_group(sd, p, cpu, sd_flag);
+		if (!group) {
+			sd = sd->child;
+			continue;
 		}
 
-		if (wu && (cas_cpu >= 0)) {
-			schedstat_inc(p, se.statistics.nr_wakeups_cas_count);
-			schedstat_inc(this_rq(), eas_stats.cas_count);
+		new_cpu = find_idlest_cpu(group, p, cpu);
+		if (new_cpu == -1 || new_cpu == cpu) {
+			/* Now try balancing at a lower domain level of cpu */
+			sd = sd->child;
+			continue;
 		}
+
+		/* Now try balancing at a lower domain level of new_cpu */
+		cpu = new_cpu;
+		weight = sd->span_weight;
+		sd = NULL;
+		for_each_domain(cpu, tmp) {
+			if (weight <= tmp->span_weight)
+				break;
+			if (tmp->flags & sd_flag)
+				sd = tmp;
+		}
+		/* while loop will break here if sd == NULL */
 	}
 	rcu_read_unlock();
 

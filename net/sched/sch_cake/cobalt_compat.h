@@ -1,8 +1,5 @@
 #ifndef __NET_SCHED_COBALT_COMPAT_H
 #define __NET_SCHED_COBALT_COMPAT_H
-
-#include <linux/version.h>
-
 /* Backport some stuff if needed.
  */
 #if KERNEL_VERSION(3, 11, 0) > LINUX_VERSION_CODE
@@ -88,6 +85,13 @@ static inline void qdisc_qstats_drop(struct Qdisc *sch)
 #if !defined(IS_REACHABLE)
 #define IS_REACHABLE(option) (config_enabled(option) || \
 		(config_enabled(option##_MODULE) && config_enabled(MODULE)))
+#endif
+
+#if KERNEL_VERSION(4, 4, 114) > LINUX_VERSION_CODE
+static inline unsigned int __tcp_hdrlen(const struct tcphdr *th)
+{
+	return th->doff * 4;
+}
 #endif
 
 #if KERNEL_VERSION(4, 7, 0) > LINUX_VERSION_CODE

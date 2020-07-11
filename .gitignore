@@ -108,3 +108,5 @@ security/selinux_n/av_permissions.h
 security/selinux_n/flask.h
 build/*.zip
 arch/arm64/configs/tmp_defconfig
+security/selinux/av_permissions.h
+security/selinux/flask.h

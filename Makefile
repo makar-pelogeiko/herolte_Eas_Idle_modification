@@ -433,8 +433,6 @@ KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
 		   -std=gnu89 $(call cc-option,-fno-PIE) \
 		   -w $(CLANG_FLAGS)
 
-KBUILD_CFLAGS += -march=armv8-a+crc -mtune=exynos-m1
-
 KBUILD_AFLAGS_KERNEL :=
 KBUILD_CFLAGS_KERNEL :=
 KBUILD_AFLAGS   := -D__ASSEMBLY__ $(call cc-option,-fno-PIE) $(CLANG_FLAGS)
@@ -681,7 +679,7 @@ else
 ifeq ($(cc-name),clang)
 KBUILD_CFLAGS	+= -O3
 else
-KBUILD_CFLAGS   += -O2
+KBUILD_CFLAGS   += -O2 -march=armv8-a+crc -mtune=exynos-m1
 endif
 endif
 

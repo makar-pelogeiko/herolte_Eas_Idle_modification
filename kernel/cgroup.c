@@ -1019,30 +1019,31 @@ static void cgroup_put(struct cgroup *cgrp)
 }
 
 /**
- * cgroup_calc_child_subsys_mask - calculate child_subsys_mask
+ * cgroup_refresh_child_subsys_mask - update child_subsys_mask
  * @cgrp: the target cgroup
- * @subtree_control: the new subtree_control mask to consider
  *
  * On the default hierarchy, a subsystem may request other subsystems to be
  * enabled together through its ->depends_on mask.  In such cases, more
  * subsystems than specified in "cgroup.subtree_control" may be enabled.
  *
- * This function calculates which subsystems need to be enabled if
- * @subtree_control is to be applied to @cgrp.  The returned mask is always
- * a superset of @subtree_control and follows the usual hierarchy rules.
+ * This function determines which subsystems need to be enabled given the
+ * current @cgrp->subtree_control and records it in
+ * @cgrp->child_subsys_mask.  The resulting mask is always a superset of
+ * @cgrp->subtree_control and follows the usual hierarchy rules.
  */
-static unsigned int cgroup_calc_child_subsys_mask(struct cgroup *cgrp,
-						  unsigned int subtree_control)
+static void cgroup_refresh_child_subsys_mask(struct cgroup *cgrp)
 {
 	struct cgroup *parent = cgroup_parent(cgrp);
-	unsigned int cur_ss_mask = subtree_control;
+	unsigned int cur_ss_mask = cgrp->subtree_control;
 	struct cgroup_subsys *ss;
 	int ssid;
 
 	lockdep_assert_held(&cgroup_mutex);
 
-	if (!cgroup_on_dfl(cgrp))
-		return cur_ss_mask;
+	if (!cgroup_on_dfl(cgrp)) {
+		cgrp->child_subsys_mask = cur_ss_mask;
+		return;
+	}
 
 	while (true) {
 		unsigned int new_ss_mask = cur_ss_mask;
@@ -1066,20 +1067,7 @@ static unsigned int cgroup_calc_child_subsys_mask(struct cgroup *cgrp,
 		cur_ss_mask = new_ss_mask;
 	}
 
-	return cur_ss_mask;
-}
-
-/**
- * cgroup_refresh_child_subsys_mask - update child_subsys_mask
- * @cgrp: the target cgroup
- *
- * Update @cgrp->child_subsys_mask according to the current
- * @cgrp->subtree_control using cgroup_calc_child_subsys_mask().
- */
-static void cgroup_refresh_child_subsys_mask(struct cgroup *cgrp)
-{
-	cgrp->child_subsys_mask =
-		cgroup_calc_child_subsys_mask(cgrp, cgrp->subtree_control);
+	cgrp->child_subsys_mask = cur_ss_mask;
 }
 
 /**

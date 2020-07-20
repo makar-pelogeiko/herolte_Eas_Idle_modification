@@ -1482,7 +1482,7 @@ extern unsigned int sysctl_sched_use_walt_cpu_util;
 extern unsigned int walt_ravg_window;
 extern unsigned int walt_disabled;
 
-static inline unsigned long task_util(struct task_struct *p, bool use_pelt)
+static inline unsigned long task_util(struct task_struct *p)
 {
 
 #ifdef CONFIG_SCHED_WALT

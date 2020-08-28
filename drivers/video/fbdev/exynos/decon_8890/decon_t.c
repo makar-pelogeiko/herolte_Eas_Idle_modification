@@ -40,7 +40,7 @@ int decon_t_set_lcd_info(struct decon_device *decon)
 	decon->lcd_info->hbp = 20;
 	decon->lcd_info->vsa = 2;
 	decon->lcd_info->hsa = 20;
-	decon->lcd_info->fps = 60;
+	decon->lcd_info->fps = 82;
 	decon->pdata->out_type = DECON_OUT_WB;
 
 	decon_info("decon_%d output size for writeback %dx%d\n", decon->id,

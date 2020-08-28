@@ -4542,7 +4542,7 @@ static int decon_s_fmt(struct v4l2_subdev *sd, struct v4l2_subdev_fh *fh,
 	decon->lcd_info->hbp = 20;
 	decon->lcd_info->vsa = 2;
 	decon->lcd_info->hsa = 20;
-	decon->lcd_info->fps = 60;
+	decon->lcd_info->fps = 82;
 	decon->pdata->out_type = DECON_OUT_WB;
 
 	decon_info("decon-%d output size for writeback %dx%d\n", decon->id,
@@ -4811,7 +4811,7 @@ static void decon_missing_pixclock(struct decon_fb_videomode *win_mode)
 	width = win_mode->videomode.xres;
 	height = win_mode->videomode.yres;
 
-	div = width * height * (win_mode->videomode.refresh ? : 60);
+	div = width * height * (win_mode->videomode.refresh ? : 82);
 
 	do_div(pixclk, div);
 	win_mode->videomode.pixclock = pixclk;

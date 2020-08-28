@@ -440,7 +440,7 @@ static void decon_fb_missing_pixclock(struct decon_fb_videomode *win_mode,
 			win_mode->videomode.lower_margin + win_mode->videomode.yres;
 	}
 
-	div = width * height * (win_mode->videomode.refresh ? : 60);
+	div = width * height * (win_mode->videomode.refresh ? : 82);
 
 	do_div(pixclk, div);
 	win_mode->videomode.pixclock = pixclk;

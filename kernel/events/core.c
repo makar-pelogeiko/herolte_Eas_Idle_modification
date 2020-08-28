@@ -797,7 +797,7 @@ static enum hrtimer_restart perf_mux_hrtimer_handler(struct hrtimer *hr)
 }
 
 /* CPU is going down */
-static void perf_mux_hrtimer_cancel(int cpu)
+void perf_mux_hrtimer_cancel(int cpu)
 {
 	struct perf_cpu_context *cpuctx;
 	struct pmu *pmu;

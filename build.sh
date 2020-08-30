@@ -13,7 +13,7 @@
 # -----
 export ARCH=arm64
 export SUBARCH=arm64
-export GCC_DIR=~/gcc/bin/aarch64-linux-gnu-
+export GCC_DIR=aarch64-linux-gnu-
 export CLANG_DIR=~/clang/bin/clang
 export BUILD_JOB_NUMBER=`grep processor /proc/cpuinfo|wc -l`
 
@@ -107,13 +107,12 @@ CONFIG_HALL_EVENT_REVERSE=y
 
 	#FUNC_CLEAN_DTB
 
-	export KBUILD_COMPILER_STRING=$($CLANG_DIR --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')
-
 	make -j$BUILD_JOB_NUMBER ARCH=$ARCH \
 			tmp_defconfig || exit -1
 
 	if [ $CC_NAME == "clang" ]; then
 		make -j$BUILD_JOB_NUMBER ARCH=$ARCH \
+			KBUILD_COMPILER_STRING=$($CLANG_DIR --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//') \
 			CC=$CLANG_DIR \
 			CLANG_TRIPLE=aarch64-linux-gnu- \
 			CROSS_COMPILE=$GCC_DIR || exit -1

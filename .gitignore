@@ -110,3 +110,4 @@ build/*.zip
 arch/arm64/configs/tmp_defconfig
 security/selinux/av_permissions.h
 security/selinux/flask.h
+security/defex_lsm/file_list

@@ -167,7 +167,7 @@ static inline ssize_t sec_ts_store_error(struct device *dev,
 	return -EPERM;
 }
 
-int sec_ts_i2c_write(struct sec_ts_data * ts, u8 reg, u8 * data, int len)
+static inline int sec_ts_i2c_write(struct sec_ts_data * ts, u8 reg, u8 * data, int len)
 {
 	u8 buf[I2C_WRITE_BUFFER_SIZE + 1];
 	int ret;
@@ -247,7 +247,7 @@ err:
 	return -EIO;
 }
 
-int sec_ts_i2c_read(struct sec_ts_data * ts, u8 reg, u8 * data, int len)
+static inline int sec_ts_i2c_read(struct sec_ts_data * ts, u8 reg, u8 * data, int len)
 {
 	u8 buf[4];
 	int ret;

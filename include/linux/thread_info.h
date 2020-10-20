@@ -104,9 +104,14 @@ static inline int test_and_clear_ti_thread_flag(struct thread_info *ti, int flag
 	return test_and_clear_bit(flag, (unsigned long *)&ti->flags);
 }
 
-static inline int test_ti_thread_flag(struct thread_info *ti, int flag)
+static inline int test_ti_thread_flag_relaxed(struct thread_info *ti, int flag)
 {
 	ti->flags = cpu_relaxed_read_long(&ti->flags);
+	return test_bit(flag, (unsigned long *)&ti->flags);
+}
+
+static inline int test_ti_thread_flag(struct thread_info *ti, int flag)
+{
 	return test_bit(flag, (unsigned long *)&ti->flags);
 }
 
@@ -120,6 +125,8 @@ static inline int test_ti_thread_flag(struct thread_info *ti, int flag)
 	test_and_clear_ti_thread_flag(current_thread_info(), flag)
 #define test_thread_flag(flag) \
 	test_ti_thread_flag(current_thread_info(), flag)
+#define test_thread_flag_relaxed(flag) \
+	test_ti_thread_flag_relaxed(current_thread_info(), flag)
 
 #define tif_need_resched() test_thread_flag(TIF_NEED_RESCHED)
 

@@ -14,7 +14,7 @@
 export ARCH=arm64
 export SUBARCH=arm64
 export GCC_DIR=aarch64-linux-gnu-
-export CLANG_DIR=~/clang/bin/clang
+export CLANG_DIR=clang
 export BUILD_JOB_NUMBER=`grep processor /proc/cpuinfo|wc -l`
 
 export PLATFORM_VERSION=9.0.0
@@ -111,7 +111,7 @@ CONFIG_HALL_EVENT_REVERSE=y
 			tmp_defconfig || exit -1
 
 	if [ $CC_NAME == "clang" ]; then
-		export KBUILD_COMPILER_STRING=$($CLANG_DIR --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')
+		export KBUILD_COMPILER_STRING=$($CLANG_DIR --version | cut -f1 -d"-" | head -1)
 		make -j$BUILD_JOB_NUMBER ARCH=$ARCH \
 			CC=$CLANG_DIR \
 			CLANG_TRIPLE=aarch64-linux-gnu- \

@@ -403,7 +403,7 @@ static inline void touch_softlockup_watchdog_sync(void)
 static inline void touch_all_softlockup_watchdogs(void)
 {
 }
-static inline void lo{ckup_detector_init(void)
+static inline void lockup_detector_init(void)
 {
 }
 static inline void watchdog_enable(unsigned int cpu)

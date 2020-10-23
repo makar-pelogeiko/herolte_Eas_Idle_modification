@@ -82,7 +82,7 @@ static struct asmp_param_struct {
 
 static unsigned int cycle_lc = 0, cycle_bc = 0, delay0 = 0;
 static unsigned long delay_jif = 0;
-int asmp_enabled __read_mostly = 0;
+int asmp_enabled __read_mostly = 1;
 
 static int get_cpu_loads(unsigned int cpu)
 {
@@ -583,6 +583,9 @@ static int __init asmp_init(void) {
 
 	pr_info(ASMP_TAG"initialized\n");
 
+	if (asmp_enabled)
+		asmp_start();
+
 	return 0;
 }
-late_initcall(asmp_init);
+late_initcall_sync(asmp_init);

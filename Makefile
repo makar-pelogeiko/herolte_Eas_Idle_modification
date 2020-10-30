@@ -414,7 +414,12 @@ KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -pipe \
 		   -fno-strict-aliasing -fno-common \
 		   -Werror-implicit-function-declaration \
 		   -Wno-format-security \
-		   -std=gnu89 $(call cc-option,-fno-PIE)
+		   -Wmisleading-indentation -Wduplicate-decl-specifier \
+		   -Warray-bounds -Wbool-compare \
+		   -std=gnu89 $(call cc-option,-fno-PIE) \
+		   -w $(CLANG_FLAGS)
+
+KBUILD_CFLAGS +: -march=armv8-a+crc -mcpu=exynos-m1 -mtune=exynos-m1
 
 KBUILD_AFLAGS_KERNEL :=
 KBUILD_CFLAGS_KERNEL :=

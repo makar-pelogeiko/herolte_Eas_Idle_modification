@@ -416,6 +416,7 @@ KBUILD_CFLAGS   := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs -pipe \
 		   -Wno-format-security \
 		   -Wmisleading-indentation -Wduplicate-decl-specifier \
 		   -Warray-bounds -Wbool-compare \
+		   -Werror
 		   -std=gnu89 $(call cc-option,-fno-PIE) \
 		   -w $(CLANG_FLAGS)
 

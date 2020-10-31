@@ -1544,7 +1544,7 @@ static ssize_t store_cpufreq_self_discharging(struct kobject *kobj, struct attri
 }
 #endif
 
-inline ssize_t show_core_freq_table(char *buf, cluster_type cluster)
+static inline ssize_t show_core_freq_table(char *buf, cluster_type cluster)
 {
 	int i, count = 0;
 	size_t tbl_sz = 0, pr_len;
@@ -1568,7 +1568,7 @@ inline ssize_t show_core_freq_table(char *buf, cluster_type cluster)
 	return count;
 }
 
-inline ssize_t show_core_freq(char *buf,
+static inline ssize_t show_core_freq(char *buf,
 				cluster_type cluster,
 				bool qos_flag) /* qos_flag : false is Freq_min, true is Freq_max */
 {
@@ -1582,7 +1582,7 @@ inline ssize_t show_core_freq(char *buf,
 	return snprintf(buf, PAGE_SIZE, "%u\n", qos_value);
 }
 
-inline ssize_t store_core_freq(const char *buf, size_t count,
+static inline ssize_t store_core_freq(const char *buf, size_t count,
 				cluster_type cluster,
 				bool qos_flag) /* qos_flag : false is Freq_min, true is Freq_max */
 {

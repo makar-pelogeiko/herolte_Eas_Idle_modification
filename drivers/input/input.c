@@ -830,7 +830,9 @@ void input_event(struct input_dev *dev,
 		 unsigned int type, unsigned int code, int value)
 {
 	unsigned long flags;
+#if defined(CONFIG_INPUT_BOOSTER)
 	int idx;
+#endif
 
 	if (is_event_supported(type, dev->evbit, EV_MAX)) {
 

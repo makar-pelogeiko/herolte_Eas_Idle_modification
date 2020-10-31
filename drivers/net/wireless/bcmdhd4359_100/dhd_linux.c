@@ -2171,7 +2171,7 @@ void dhd_del_sta(void *pub, int ifidx, void *ea) {}
  * CPU and schedules a tasklet.
  * @tasklet: opaque pointer to the tasklet
  */
-INLINE void
+static INLINE void
 dhd_tasklet_schedule(void *tasklet)
 {
 	tasklet_schedule((struct tasklet_struct *)tasklet);
@@ -2185,7 +2185,7 @@ dhd_tasklet_schedule(void *tasklet)
  * smp_call_function_single with no wait and the tasklet_schedule function
  * will be invoked to schedule the specified tasklet on the requested CPU.
  */
-INLINE void
+static INLINE void
 dhd_tasklet_schedule_on(struct tasklet_struct *tasklet, int on_cpu)
 {
 	const int wait = 0;
@@ -2203,7 +2203,7 @@ dhd_tasklet_schedule_on(struct tasklet_struct *tasklet, int on_cpu)
  * will be invoked to schedule the specified work on the requested CPU.
  */
 
-INLINE void
+static INLINE void
 dhd_work_schedule_on(struct work_struct *work, int on_cpu)
 {
 	schedule_work_on(on_cpu, work);

@@ -5171,7 +5171,7 @@ long group_norm_util(struct energy_env *eenv, struct sched_group *sg)
 }
 
 static int find_new_capacity(struct energy_env *eenv,
-	const struct sched_group_energy const *sge)
+	const struct sched_group_energy * const sge)
 {
 	int idx, max_idx = sge->nr_cap_states - 1;
 	unsigned long util = group_max_util(eenv);
@@ -6005,10 +6005,10 @@ static int select_idle_sibling(struct task_struct *p, int prev, int target)
 	int best_idle_cpu = -1;
 	int best_idle_cstate = INT_MAX;
 	unsigned long best_idle_capacity = ULONG_MAX;
+	struct cpumask allowed_cpus;
 
 	schedstat_inc(p, se.statistics.nr_wakeups_sis_attempts);
 	schedstat_inc(this_rq(), eas_stats.sis_attempts);
-	struct cpumask allowed_cpus;
 
 	if (!sysctl_sched_cstate_aware) {
 		if (idle_cpu(target)) {

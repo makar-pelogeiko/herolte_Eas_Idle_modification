@@ -48,6 +48,9 @@ if is_substring("G930", getprop("ro.boot.bootloader")) then
 endif;
 set_progress(0.500000);
 
+#Delete tweaker apps
+run_program("/tmp/script/remove_tweaks.sh");
+
 #--UNMOUNT
 delete_recursive("/tmp");
 ifelse(is_mounted("/system"), unmount("/system"));

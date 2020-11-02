@@ -416,4 +416,4 @@ static int __init asmp_init(void) {
 
 	return 0;
 }
-late_initcall_sync(asmp_init);
+late_initcall(asmp_init);

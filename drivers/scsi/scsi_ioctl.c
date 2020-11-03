@@ -205,7 +205,7 @@ static int ioctl_secu_prot_command(struct scsi_device *sdev, char *cmd,
 					int prot_in_out, void __user *arg,
 					int timeout, int retries)
 {
-	int result, dma_direction;
+	int result, dma_direction = 0;
 	struct scsi_sense_hdr sshdr;
 	unsigned char *buf;
 	unsigned int bufflen;

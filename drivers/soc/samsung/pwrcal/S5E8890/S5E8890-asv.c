@@ -1054,9 +1054,9 @@ enum asv_group {
 
 int asv_get_information(enum dvfs_id id, enum asv_group grp, unsigned int lv) {
 
-	int max_lv, volt, group, asv;
+	int max_lv, volt, group = 0, asv;
 	void *asv_block;
-	struct ect_voltage_domain *domain;
+	struct ect_voltage_domain *domain = NULL;
 
 	asv_block = ect_get_block("ASV");
 	if (asv_block == NULL)

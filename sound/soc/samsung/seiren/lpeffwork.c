@@ -86,9 +86,9 @@ int lpeff_alloc(char *str)
 static ssize_t lpeff_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
-	u32 elpe_cmd;
-	u32 arg0, arg1, arg2, arg3, arg4, arg5, arg6;
-	u32 arg7, arg8, arg9, arg10, arg11, arg12;
+	u32 elpe_cmd = 0;
+	u32 arg0 =0 , arg1 = 0, arg2 = 0, arg3 = 0, arg4 = 0, arg5 = 0, arg6 = 0;
+	u32 arg7 = 0, arg8 = 0, arg9 = 0, arg10 = 0, arg11 = 0, arg12 = 0;
 
 	if (!check_esa_compr_state())
 		return 1;

@@ -1869,7 +1869,7 @@ static int esa_release(struct inode *inode, struct file *file)
 
 ssize_t esa_copy(unsigned long hwbuf, ssize_t size)
 {
-	int i, cnt, ret;
+	int i, cnt, ret = 0;
 
 	mutex_lock(&esa_mutex);
 	if (pm_runtime_get_sync(&si.pdev->dev) < 0) {
@@ -1965,7 +1965,7 @@ out:
 static ssize_t esa_write(struct file *file, const char *buffer,
 					size_t size, loff_t *pos)
 {
-	int ret;
+	int ret = -EINVAL;
 
 	mutex_lock(&esa_mutex);
 	if (pm_runtime_get_sync(&si.pdev->dev) < 0) {

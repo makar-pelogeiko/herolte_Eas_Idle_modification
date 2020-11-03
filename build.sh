@@ -13,7 +13,7 @@
 # -----
 export ARCH=arm64
 export SUBARCH=arm64
-export GCC_DIR=~/gcc/bin/aarch64-linux-gnu-
+export GCC_DIR=~/gcc9/bin/aarch64-none-linux-gnu-
 export CLANG_DIR=~/clang/bin/clang
 
 export BUILD_JOB_NUMBER=`grep processor /proc/cpuinfo|wc -l`

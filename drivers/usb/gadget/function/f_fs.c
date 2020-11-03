@@ -748,7 +748,7 @@ static ssize_t ffs_epfile_io(struct file *file,
 	struct usb_gadget *gadget = epfile->ffs->gadget;
 	struct ffs_ep *ep;
 	char *data = NULL;
-	ssize_t ret, data_len;
+	ssize_t ret, data_len = 0;
 	int halt;
 
 	/* Are we still active? */

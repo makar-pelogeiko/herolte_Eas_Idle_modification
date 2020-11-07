@@ -9159,7 +9159,7 @@ static int idle_balance(struct rq *this_rq)
 	struct sched_domain *sd;
 	int pulled_task = 0;
 	u64 curr_cost = 0;
-	long removed_util = 0L;
+	long removed_util;
 
 	if (cpu_isolated(this_cpu))
 		return 0;

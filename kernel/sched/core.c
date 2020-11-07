@@ -5588,10 +5588,8 @@ int sched_isolate_cpu(int cpu)
 
 out:
 	cpu_maps_update_done();
-
-	if (trace_sched_isolate_enabled())
-		trace_sched_isolate(cpu, cpumask_bits(cpu_isolated_mask)[0],
-				    start_time, 1);
+	trace_sched_isolate(cpu, cpumask_bits(cpu_isolated_mask)[0],
+			    start_time, 1);
 	return ret_code;
 }
 
@@ -5639,9 +5637,8 @@ int sched_unisolate_cpu_unlocked(int cpu)
 	}
 
 out:
-	if (trace_sched_isolate_enabled())
-		trace_sched_isolate(cpu, cpumask_bits(cpu_isolated_mask)[0],
-				    start_time, 0);
+	trace_sched_isolate(cpu, cpumask_bits(cpu_isolated_mask)[0],
+			    start_time, 0);
 	return ret_code;
 }
 

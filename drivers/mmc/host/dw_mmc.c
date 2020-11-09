@@ -1276,7 +1276,7 @@ disable:
 	mci_writel(host, CDTHRCTL, SDMMC_SET_RD_THLD(0, 0));
 }
 
-static inline u32 dw_mci_calc_hto_timeout(struct dw_mci *host)
+inline u32 dw_mci_calc_hto_timeout(struct dw_mci *host)
 {
 	struct dw_mci_slot *slot = host->cur_slot;
 	u32 target_timeout, count;

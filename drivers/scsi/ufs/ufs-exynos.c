@@ -899,7 +899,7 @@ out:
 	return ret;
 }
 
-void exynos_ufs_ctrl_hci_core_clk(struct exynos_ufs *ufs, bool en)
+static inline void exynos_ufs_ctrl_hci_core_clk(struct exynos_ufs *ufs, bool en)
 {
 	u32 reg = hci_readl(ufs, HCI_FORCE_HCS);
 

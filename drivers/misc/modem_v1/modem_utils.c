@@ -283,7 +283,7 @@ inline void set_wakeup_packet_log(bool enable)
 	wakeup_log_enable = enable;
 }
 
-static inline unsigned long get_log_flags(void)
+inline unsigned long get_log_flags(void)
 {
 	return wakeup_log_enable ? wakeup_dflags : dflags;
 }

@@ -140,6 +140,13 @@ config USB_USBNET
 	  To compile this driver as a module, choose M here: the
 	  module will be called usbnet.
 
+config USB_NET_QF9700
+	tristate "QTS1081B 9700 USB Ethernet Adapter"
+	depends on USB_USBNET
+	default n
+	help
+	  This option adds support for QTS1081B 9700 USB ethernet adapter
+
 config USB_NET_AX8817X
 	tristate "ASIX AX88xxx Based USB 2.0 Ethernet Adapters"
 	depends on USB_USBNET

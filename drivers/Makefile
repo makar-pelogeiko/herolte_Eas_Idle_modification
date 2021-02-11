@@ -199,5 +199,3 @@ obj-y                           += motor/
 
 # CCIC
 obj-y	+= ccic/
-
-obj-y	+= android/

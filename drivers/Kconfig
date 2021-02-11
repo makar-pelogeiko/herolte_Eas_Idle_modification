@@ -215,6 +215,4 @@ source "drivers/mailbox/samsung/Kconfig"
 source "drivers/gator/Kconfig"
 
 source "drivers/ccic/Kconfig"
-
-source "drivers/android/Kconfig"
 endmenu

@@ -612,7 +612,6 @@ static inline void queue_flag_clear(unsigned int flag, struct request_queue *q)
 #define blk_queue_discard(q)	test_bit(QUEUE_FLAG_DISCARD, &(q)->queue_flags)
 #define blk_queue_secdiscard(q)	(blk_queue_discard(q) && \
 	test_bit(QUEUE_FLAG_SECDISCARD, &(q)->queue_flags))
-#define blk_queue_fast(q)	test_bit(QUEUE_FLAG_FAST, &(q)->queue_flags)
 
 #ifdef CONFIG_JOURNAL_DATA_TAG
 #define blk_queue_journal_tag(q)   test_bit(QUEUE_FLAG_JOURNAL_TAG, &(q)->queue_flags)

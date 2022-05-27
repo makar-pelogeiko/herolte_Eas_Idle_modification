@@ -5754,6 +5754,18 @@ schedtune_task_margin(struct task_struct *task)
 
 #endif /* CONFIG_SCHED_TUNE */
 
+//pelogeiko modified 23.05
+unsigned long
+boosted_cpu_util_pelo(int cpu)
+{
+	unsigned long util = cpu_util_freq(cpu);
+	long margin = schedtune_cpu_margin(util, cpu);
+
+	trace_sched_boost_cpu(cpu, util, margin);
+
+	return util + margin;
+}
+
 unsigned long
 boosted_cpu_util(int cpu)
 {

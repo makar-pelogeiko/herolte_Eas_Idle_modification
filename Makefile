@@ -1,7 +1,7 @@
 VERSION = 3
 PATCHLEVEL = 18
 SUBLEVEL = 91
-EXTRAVERSION =
+EXTRAVERSION = pelogeiko_23_05_22Qstable_modified
 NAME = Diseased Newt
 
 # *DOCUMENTATION*

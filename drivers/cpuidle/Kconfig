@@ -25,6 +25,10 @@ config CPU_IDLE_GOV_MENU
 	bool "Menu governor (for tickless system)"
 	default y
 
+config CPU_IDLE_GOV_MENU_MODIF
+	bool "Menu modified governor (for tickless system)"
+	default y
+
 config DT_IDLE_STATES
 	bool
 

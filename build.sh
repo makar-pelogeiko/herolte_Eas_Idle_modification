@@ -13,7 +13,7 @@
 # -----
 export ARCH=arm64
 export SUBARCH=arm64
-export GCC_DIR=~/gcc9/bin/aarch64-none-linux-gnu-
+export GCC_DIR=/media/user/DATA/course_work/gcc-linaro-7.4.1-2019.02-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
 export CLANG_DIR=~/clang/bin/clang
 
 export BUILD_JOB_NUMBER=`grep processor /proc/cpuinfo|wc -l`

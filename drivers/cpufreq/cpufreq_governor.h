@@ -177,7 +177,7 @@ struct od_dbs_tuners {
 	unsigned int up_threshold;
 	unsigned int powersave_bias;
 	unsigned int io_is_busy;
-    int betta;
+    int beta;
     int alpha;
     unsigned int target_load;
     unsigned int log_print;

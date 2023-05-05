@@ -1,5 +1,5 @@
 /*
- *  drivers/cpufreq/cpufreq_spsa2dina.c
+ *  drivers/cpufreq/cpufreq_spsa2_1_solid.c
  *
  *  Copyright (C)  2001 Russell King
  *            (C)  2003 Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>.
@@ -38,17 +38,17 @@ static DEFINE_PER_CPU(struct od_cpu_dbs_info_s, od_cpu_dbs_info);
 
 static struct od_ops od_ops;
 
-#ifndef CONFIG_CPU_FREQ_DEFAULT_GOV_SPSA2DINA
-static struct cpufreq_governor cpufreq_gov_spsa2dina;
+#ifndef CONFIG_CPU_FREQ_DEFAULT_GOV_SPSA2_1_SOLID
+static struct cpufreq_governor cpufreq_gov_spsa2_1_solid;
 #endif
 
 static unsigned int default_powersave_bias;
 
-static void spsa2dina_powersave_bias_init_cpu(int cpu)
+static void spsa2_1_solid_powersave_bias_init_cpu(int cpu)
 {
 	struct od_cpu_dbs_info_s *dbs_info = &per_cpu(od_cpu_dbs_info, cpu);
 
-    pr_warn("gov spsa2dina call: spsa2dina_powersave_bias_init_cpu, cpu: %d \n", cpu);
+    pr_warn("gov spsa2_1_solid call: spsa2_1_solid_powersave_bias_init_cpu, cpu: %d \n", cpu);
 
 	dbs_info->freq_table = cpufreq_frequency_get_table(cpu);
 	dbs_info->freq_lo = 0;
@@ -133,14 +133,14 @@ static unsigned int generic_powersave_bias_target(struct cpufreq_policy *policy,
 	return freq_hi;
 }
 
-//static void spsa2dina_powersave_bias_init(void)
+//static void spsa2_1_solid_powersave_bias_init(void)
 //{
 //	int i;
 //
-//    pr_warn("gov spsa2dina call: spsa2dina_powersave_bias_init_cpu from spsa2dinatmp_powersave_bias_init \n");        
+//    pr_warn("gov spsa2_1_solid call: spsa2_1_solid_powersave_bias_init_cpu from spsa2_1_solid_powersave_bias_init \n");        
 //
 //	for_each_online_cpu(i) {
-//		spsa2dina_powersave_bias_init_cpu(i);
+//		spsa2_1_solid_powersave_bias_init_cpu(i);
 //	}
 //}
 
@@ -243,7 +243,7 @@ static int get_freq_amount(unsigned int cluster)
     freq_amount = cluster < 1 ? FREQ_MAX_AMOUNT_1 : FREQ_MAX_AMOUNT_2;
     
     if (cluster > 1)
-        pr_warn("gov spsa2dina <get_freq_amount> WRONG CLUSTER: %u \n", cluster);
+        pr_warn("gov spsa2 <get_freq_amount> WRONG CLUSTER: %u \n", cluster);
     
     return freq_amount;	
 }
@@ -254,7 +254,7 @@ static unsigned int* get_freq_array(unsigned int cluster)
     freq = cluster < 1 ? freq_1 : freq_2;
     
     if (cluster > 1)
-        pr_warn("gov spsa2dina <get_freq_array> WRONG CLUSTER: %u \n", cluster);
+        pr_warn("gov spsa2 <get_freq_array> WRONG CLUSTER: %u \n", cluster);
     
     return freq;	
 }
@@ -265,7 +265,7 @@ static unsigned int* get_en_array(unsigned int cluster)
     en = cluster < 1 ? en_1 : en_2;
     
     if (cluster > 1)
-        pr_warn("gov spsa2dina <get_en_array> WRONG CLUSTER: %u \n", cluster);
+        pr_warn("gov spsa2 <get_en_array> WRONG CLUSTER: %u \n", cluster);
     
     return en;	
 }
@@ -275,14 +275,14 @@ static signed int generate_delta(void)
     int rand;
     get_random_bytes(&rand, sizeof(rand));
 	
-    //pr_warn("gov spsa2dina, minus, random delta %d \n", rand);
+    //pr_warn("gov spsa2, minus, random delta %d \n", rand);
     if (rand & 0x1)
     {
-        //pr_warn("gov spsa2dina, minus, random delta %d \n", rand);
+        //pr_warn("gov spsa2, minus, random delta %d \n", rand);
         return -1;
     }
     
-    //pr_warn("gov spsa2dina, plus, random delta %d \n", rand);
+    //pr_warn("gov spsa2, plus, random delta %d \n", rand);
 
     return 1;
 }
@@ -301,24 +301,23 @@ static int find(unsigned int* freq, int freq_amount, unsigned int val)
 
 static unsigned int find_closest(unsigned int frequency, unsigned int* freq, int freq_amount)
 {
-    unsigned int closest_ind;
+    unsigned int closest;
     int i;
 
-    closest_ind = 0;
+    closest = freq[0];
 
     for (i = 0; i < freq_amount; i++) {
-        if (abs((int)freq[i] - (int)frequency) < abs((int)frequency - (int)freq[closest_ind])) {
-            closest_ind = i;
+        if (abs((int)freq[i] - (int)frequency) < abs((int)frequency - (int)closest)) {
+            closest = freq[i];
         }
     }
 
-    return closest_ind;
+    return closest;
 }
 
 
 static int calculate_functional(unsigned int current_load, int index, unsigned int* freq, unsigned int* en, int freq_amount, unsigned int target_load)
 {
-    unsigned int target_index = 0;
 	unsigned int target_freq = 0;
 	unsigned int current_freq = 0;
     unsigned int volume = 0;
@@ -352,22 +351,14 @@ static int calculate_functional(unsigned int current_load, int index, unsigned i
 	    }
 		
 		target_freq = freq[min_index];
-        target_index = min_index;
 	}
 	else
 	{
 		// higher than target => trying to meet the requirements
-		target_index = find_closest(volume / target_load, freq, freq_amount);
-        
-        if ((current_load >= 100) && (target_index < freq_amount - 2))
-        {
-            target_index += 1;
-        }
-
-        target_freq = freq[target_index];
+		target_freq = find_closest(volume / target_load, freq, freq_amount);
 	}
 
-	return abs(index - (int)target_index);
+	return abs(index - (int)find(freq, freq_amount, target_freq));
 }
 
 static int determine_new_freq(struct cpufreq_policy* policy, struct spsa2_policy_dbs_info* dbs_info, struct od_dbs_tuners *od_tuners, unsigned int cluster, unsigned int load)
@@ -384,16 +375,20 @@ static int determine_new_freq(struct cpufreq_policy* policy, struct spsa2_policy
 
 	int new_index;
 
-    unsigned int next_freq, target_load, log_print;
+    unsigned int next_freq, target_load;
     
     int freq_amount;
-    int betta;
+    int beta;
     int alpha;
-    // Have to add int alpha and int betta to <drivers/cpufreq/cpufreq_governor.h>, struct od_dbs_tuners
+
+    int i, delta, plus_model, minus_model, gradient;
+    int inds[2];
+    unsigned int volume;
+
+    // Have to add int alpha and int beta to <drivers/cpufreq/cpufreq_governor.h>, struct od_dbs_tuners
     alpha = od_tuners->alpha;
-    betta = od_tuners->betta;
+    beta = od_tuners->beta;
     target_load = od_tuners->target_load;
-    log_print = od_tuners->log_print;
     
     //freq = policy->cpu < 4 ? freq_1 : freq_2;	
     //en = policy->cpu < 4 ? en_1 : en_2;
@@ -409,8 +404,7 @@ static int determine_new_freq(struct cpufreq_policy* policy, struct spsa2_policy
 
     if(index < 0 || index > freq_amount - 1)
 	{
-        if (log_print)
-		    pr_warn("gov spsa2, frequency %u is not found for cpu %u \n", current_freq, policy->cpu);
+		pr_warn("gov spsa2, frequency %u is not found for cpu %u \n", current_freq, policy->cpu);
 		index = 0;
 	}
 	
@@ -436,101 +430,51 @@ static int determine_new_freq(struct cpufreq_policy* policy, struct spsa2_policy
 //        return dbs_info->requested_freq;
 //	}
 	
-    model = 0; //calculate_functional(load, index, freq, en, freq_amount, target_load);
+    model = 0;
     new_index = index;
+
  
     if (dbs_info->old_index < 0 || dbs_info->old_index > (freq_amount - 1))
         dbs_info->old_index = index;
     
-    if (dbs_info->phase == 0)
-    {
-        int i, delta, plus_model, minus_model, difference, gradient, dina_mult;
-        int inds[2];
-        unsigned int volume;
-        
-        dina_mult = 1;
-        volume = current_freq * load;
-        
-        delta = generate_delta();
-        
-        inds[0] = index + delta * betta;
-        inds[1] = index - delta * betta;
-        for (i = 0; i < 2; ++i)
-        {
-            if (inds[i] >= freq_amount)
-                inds[i] = freq_amount - 1;
-            
-            if (inds[i] < 0)
-                inds[i] = 0;
-        }
+
+
+    volume = current_freq * load;
     
-        plus_model = calculate_functional(volume / freq[inds[0]], inds[0], freq, en, freq_amount, target_load);
-        minus_model = calculate_functional(volume / freq[inds[1]], inds[1], freq, en, freq_amount, target_load);
-        
-        difference = plus_model - minus_model;
-        if (abs(difference) == 1)
-        {
-            difference *= 2;
-        }
-
-        if ((load > target_load) && (difference == 0))
-        {
-            difference = -2;
-            delta = 1;
-        }
-
-        gradient = (alpha * (difference)) / (2 * delta * betta);
-        
-        dina_mult = 1;
-        if (gradient > 0)
-        {
-            int diff_load;
-            diff_load = target_load - load;
-            
-            if (diff_load >= 20)
-                dina_mult = 2;
-
-            if (diff_load >= 30)
-                dina_mult = 3;
-
-            if (diff_load >= 40)
-                dina_mult = 4;            
-        }
-        else
-        {
-            if ((load >= 100) && (index < freq_amount / 2))
-                dina_mult = 4;
-            
-            if ((load >= 100) && (index >= freq_amount / 2))
-                dina_mult = 2;
-            
-            if ((load - target_load > 30) || ((dina_mult == 2) && (alpha < 3)))
-                dina_mult = 3;
-        }
-        
-        new_index = dbs_info->old_index - gradient * dina_mult;
-        
-        if (log_print)
-            pr_warn("gov_spsa2, result cpu %u -- load: %u, t_load: %u,  plus: %d, minus: %d, al: %d, bt: %d, del: %d, grad: %d, dina: %d, old_i: %d, new_i: %d\n", policy->cpu, load, target_load, plus_model, minus_model, alpha, betta, delta, gradient, dina_mult, dbs_info->old_index, new_index);
-
-        if (new_index < 0)
-        {
-            //pr_warn("gov_spsa2, new index < 0, cpu: %d \n", policy->cpu);
-            new_index = 0;
-        }
-        
-        if (new_index >= freq_amount)
-        {
-            //pr_warn("gov_spsa2, new index > %d, cpu: %d \n", freq_amount, policy->cpu);
-            new_index = freq_amount - 1;
-        }
-    }
-    else
+    delta = generate_delta();
+    
+    inds[0] = index + delta * beta;
+    inds[1] = index - delta * beta;
+    for (i = 0; i < 2; ++i)
     {
-        dbs_info->phase = 0;
+        if (inds[i] >= freq_amount)
+            inds[i] = freq_amount - 1;
+        
+        if (inds[i] < 0)
+            inds[i] = 0;
+    }
+
+    plus_model = calculate_functional(volume / freq[inds[0]], inds[0], freq, en, freq_amount, target_load);
+    minus_model = calculate_functional(volume / freq[inds[1]], inds[1], freq, en, freq_amount, target_load);
+    gradient = (alpha * (plus_model - minus_model)) / (2 * delta * beta);
+    
+    new_index = dbs_info->old_index - gradient;
+    
+    pr_warn("gov_spsa2, result cpu %u -- load: %u, t_load: %u,  plus: %d, minus: %d, al: %d, bt: %d, del: %d, grad: %d, old_i: %d, new_i: %d\n", policy->cpu, load, target_load, plus_model, minus_model, alpha, beta, delta, gradient, dbs_info->old_index, new_index);
+
+    if (new_index < 0)
+    {
+        //pr_warn("gov_spsa2, new index < 0, cpu: %d \n", policy->cpu);
+        new_index = 0;
     }
     
-    //pr_warn("gov_spsa2, results for cpu %u -- alpha: %d, betta: %d, old freq: %u, target freq: %u \n", policy->cpu, alpha, betta, current_freq, freq[new_index]);
+    if (new_index >= freq_amount)
+    {
+        //pr_warn("gov_spsa2, new index > %d, cpu: %d \n", freq_amount, policy->cpu);
+        new_index = freq_amount - 1;
+    }
+    
+    //pr_warn("gov_spsa2, results for cpu %u -- alpha: %d, beta: %d, old freq: %u, target freq: %u \n", policy->cpu, alpha, beta, current_freq, freq[new_index]);
 
     dbs_info->old_index = new_index;
     next_freq = freq[new_index];
@@ -576,8 +520,8 @@ static void od_check_cpu(int cpu, unsigned int load)
 	struct cpufreq_policy *policy = dbs_info->cdbs.cur_policy;
 	struct dbs_data *dbs_data = policy->governor_data;
 	
-    // alpha and betta params are here
-    // struct od_dbs_tuners *od_tuners = dbs_data->tuners;
+    // alpha and beta params are here
+    struct od_dbs_tuners *od_tuners = dbs_data->tuners;
 
 	dbs_info->freq_lo = 0;
     
@@ -595,6 +539,35 @@ static void od_check_cpu(int cpu, unsigned int load)
    
     // spsa2 functions use end    
     return;
+    	
+    /* Check for frequency increase */
+	if (load > od_tuners->up_threshold) {
+		/* If switching to max speed, apply sampling_down_factor */
+		if (policy->cur < policy->max)
+			dbs_info->rate_mult =
+				od_tuners->sampling_down_factor;
+		dbs_freq_increase(policy, policy->max);
+	} else {
+		/* Calculate the next frequency proportional to load */
+		unsigned int freq_next, min_f, max_f;
+
+		min_f = policy->cpuinfo.min_freq;
+		max_f = policy->cpuinfo.max_freq;
+		freq_next = min_f + load * (max_f - min_f) / 100;
+
+		/* No longer fully busy, reset rate_mult */
+		dbs_info->rate_mult = 1;
+
+		if (!od_tuners->powersave_bias) {
+			__cpufreq_driver_target(policy, freq_next,
+					CPUFREQ_RELATION_C);
+			return;
+		}
+
+		freq_next = od_ops.powersave_bias_target(policy, freq_next,
+					CPUFREQ_RELATION_L);
+		__cpufreq_driver_target(policy, freq_next, CPUFREQ_RELATION_C);
+	}
 }
 
 static void od_dbs_timer(struct work_struct *work)
@@ -646,7 +619,7 @@ max_delay:
 static struct common_dbs_data od_dbs_cdata;
 
 
-static ssize_t store_betta(struct dbs_data *dbs_data, const char *buf,
+static ssize_t store_beta(struct dbs_data *dbs_data, const char *buf,
 		size_t count)
 {
 	struct od_dbs_tuners *od_tuners = dbs_data->tuners;
@@ -654,11 +627,11 @@ static ssize_t store_betta(struct dbs_data *dbs_data, const char *buf,
 	int ret;
 
 	ret = sscanf(buf, "%d", &input);
-    pr_warn("gov spsa2 got value: %d, store_betta \n", input);
+    pr_warn("gov spsa2 got value: %d, store_beta \n", input);
 	
     if (ret != 1)
 		return -EINVAL;
-	od_tuners->betta = input;
+	od_tuners->beta = input;
 
 	return count;
 }
@@ -697,61 +670,40 @@ static ssize_t store_target_load(struct dbs_data *dbs_data, const char *buf,
 	return count;
 }
 
-static ssize_t store_log_print(struct dbs_data *dbs_data, const char *buf,
-		size_t count)
-{
-	struct od_dbs_tuners *od_tuners = dbs_data->tuners;
-	unsigned int input;
-	int ret;
-
-	ret = sscanf(buf, "%u", &input);
-    pr_warn("gov spsa2 got value: %u, store_log_print \n", input);
-	
-    if (ret != 1)
-		return -EINVAL;
-	od_tuners->log_print = !!input;
-
-	return count;
-}
-
-// Have to add int alpha and int betta to <drivers/cpufreq/cpufreq_governor.h>, struct od_dbs_tuners
-show_store_one(od, betta);
+// Have to add int alpha and int beta to <drivers/cpufreq/cpufreq_governor.h>, struct od_dbs_tuners
+show_store_one(od, beta);
 show_store_one(od, alpha);
 show_store_one(od, target_load);
-show_store_one(od, log_print);
 
 
-gov_sys_pol_attr_rw(betta);
+gov_sys_pol_attr_rw(beta);
 gov_sys_pol_attr_rw(alpha);
 gov_sys_pol_attr_rw(target_load);
-gov_sys_pol_attr_rw(log_print);
 
 
 
 static struct attribute *dbs_attributes_gov_sys[] = {
-    &betta_gov_sys.attr,
+    &beta_gov_sys.attr,
     &alpha_gov_sys.attr,
     &target_load_gov_sys.attr,
-    &log_print_gov_sys.attr,
 	NULL
 };
 
 static struct attribute_group od_attr_group_gov_sys = {
 	.attrs = dbs_attributes_gov_sys,
-	.name = "spsa2_dina",
+	.name = "spsa2_1_solid",
 };
 
 static struct attribute *dbs_attributes_gov_pol[] = {
-    &betta_gov_pol.attr,
+    &beta_gov_pol.attr,
     &alpha_gov_pol.attr,
     &target_load_gov_pol.attr,
-    &log_print_gov_pol.attr,
 	NULL
 };
 
 static struct attribute_group od_attr_group_gov_pol = {
 	.attrs = dbs_attributes_gov_pol,
-	.name = "spsa2_dina",
+	.name = "spsa2_1_solid",
 };
 
 /************************** sysfs end ************************/
@@ -797,9 +749,8 @@ static int od_init(struct dbs_data *dbs_data)
     
     // spsa2 functions use
     tuners->alpha = 2;
-    tuners->betta = 1;
+    tuners->beta = 1;
     tuners->target_load = 70;
-    tuners->log_print = 0;
     // spsa2 functions use end
 
 	dbs_data->tuners = tuners;
@@ -817,7 +768,6 @@ static int od_init(struct dbs_data *dbs_data)
         clusters_data[cluster].requested_freq = freq[freq_amount / 2];
         clusters_data[cluster].old_index = freq_amount / 2;
         clusters_data[cluster].delta = 1;
-        clusters_data[cluster].direction = 0;
         clusters_data[cluster].phase = 0;
         clusters_data[cluster].old_load = 100;   
     }
@@ -837,7 +787,7 @@ static void od_exit(struct dbs_data *dbs_data)
 define_get_cpu_dbs_routines(od_cpu_dbs_info);
 
 static struct od_ops od_ops = {
-	.powersave_bias_init_cpu = spsa2dina_powersave_bias_init_cpu,
+	.powersave_bias_init_cpu = spsa2_1_solid_powersave_bias_init_cpu,
 	.powersave_bias_target = generic_powersave_bias_target,
 	.freq_increase = dbs_freq_increase,
 };
@@ -877,7 +827,7 @@ static void od_set_powersave_bias(unsigned int powersave_bias)
 
 		cpumask_or(&done, &done, policy->cpus);
 
-		if (policy->governor != &cpufreq_gov_spsa2dina)
+		if (policy->governor != &cpufreq_gov_spsa2_1_solid)
 			continue;
 
 		dbs_data = policy->governor_data;
@@ -887,21 +837,21 @@ static void od_set_powersave_bias(unsigned int powersave_bias)
 	put_online_cpus();
 }
 
-void od_register_powersave_bias_handler_spsa2dina_copy(unsigned int (*f)
+void od_register_powersave_bias_handler_spsa2_1_solid_copy(unsigned int (*f)
 		(struct cpufreq_policy *, unsigned int, unsigned int),
 		unsigned int powersave_bias)
 {
 	od_ops.powersave_bias_target = f;
 	od_set_powersave_bias(powersave_bias);
 }
-EXPORT_SYMBOL_GPL(od_register_powersave_bias_handler_spsa2dina_copy);
+EXPORT_SYMBOL_GPL(od_register_powersave_bias_handler_spsa2_1_solid_copy);
 
-void od_unregister_powersave_bias_handler_spsa2dina_copy(void)
+void od_unregister_powersave_bias_handler_spsa2_1_solid_copy(void)
 {
 	od_ops.powersave_bias_target = generic_powersave_bias_target;
 	od_set_powersave_bias(0);
 }
-EXPORT_SYMBOL_GPL(od_unregister_powersave_bias_handler_spsa2dina_copy);
+EXPORT_SYMBOL_GPL(od_unregister_powersave_bias_handler_spsa2_1_solid_copy);
 
 static int od_cpufreq_governor_dbs(struct cpufreq_policy *policy,
 		unsigned int event)
@@ -909,11 +859,11 @@ static int od_cpufreq_governor_dbs(struct cpufreq_policy *policy,
 	return cpufreq_governor_dbs(policy, &od_dbs_cdata, event);
 }
 
-#ifndef CONFIG_CPU_FREQ_DEFAULT_GOV_SPSA2DINA
+#ifndef CONFIG_CPU_FREQ_DEFAULT_GOV_SPSA2_1_SOLID
 static
 #endif
-struct cpufreq_governor cpufreq_gov_spsa2dina = {
-	.name			= "spsa2_dina",
+struct cpufreq_governor cpufreq_gov_spsa2_1_solid = {
+	.name			= "spsa2_1_solid",
 	.governor		= od_cpufreq_governor_dbs,
 	.max_transition_latency	= TRANSITION_LATENCY_LIMIT,
 	.owner			= THIS_MODULE,
@@ -922,22 +872,22 @@ struct cpufreq_governor cpufreq_gov_spsa2dina = {
 static int __init cpufreq_gov_dbs_init(void)
 {
     pr_warn("init cpufreq_g");
-	return cpufreq_register_governor(&cpufreq_gov_spsa2dina);
+	return cpufreq_register_governor(&cpufreq_gov_spsa2_1_solid);
 }
 
 static void __exit cpufreq_gov_dbs_exit(void)
 {
     pr_warn("spsa2 exit cpufreq_gov_dbs_exit");
-	cpufreq_unregister_governor(&cpufreq_gov_spsa2dina);
+	cpufreq_unregister_governor(&cpufreq_gov_spsa2_1_solid);
 }
 
 MODULE_AUTHOR("Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>");
 MODULE_AUTHOR("Alexey Starikovskiy <alexey.y.starikovskiy@intel.com>");
-MODULE_DESCRIPTION("'cpufreq_spsa2dina' - A dynamic cpufreq governor for "
+MODULE_DESCRIPTION("'cpufreq_spsa2' - A dynamic cpufreq governor for "
 	"Low Latency Frequency Transition capable processors");
 MODULE_LICENSE("GPL");
 
-#ifdef CONFIG_CPU_FREQ_DEFAULT_GOV_SPSA2DINA
+#ifdef CONFIG_CPU_FREQ_DEFAULT_GOV_SPSA2_1_SOLID
 fs_initcall(cpufreq_gov_dbs_init);
 #else
 module_init(cpufreq_gov_dbs_init);

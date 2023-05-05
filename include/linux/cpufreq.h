@@ -531,24 +531,21 @@ extern struct cpufreq_governor cpufreq_gov_userspace;
 #elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_ONDEMAND)
 extern struct cpufreq_governor cpufreq_gov_ondemand;
 #define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_ondemand)
-#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_SPSA2)
-extern struct cpufreq_governor cpufreq_gov_spsa2;
-#define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_spsa2)
-#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_SPSA2TEST)
-extern struct cpufreq_governor cpufreq_gov_spsa2_test;
-#define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_spsa2_test)
-#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_SPSA2LCLS)
-extern struct cpufreq_governor cpufreq_gov_spsa2_lcls;
-#define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_spsa2_lcls)
-#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_SPSA2LONG)
-extern struct cpufreq_governor cpufreq_gov_spsa2_long;
-#define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_spsa2_long)
-#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_SPSA2LOGIC)
-extern struct cpufreq_governor cpufreq_gov_spsa2_logic;
-#define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_spsa2_logic)
-#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_SPSA2DINA)
-extern struct cpufreq_governor cpufreq_gov_spsa2_dina;
-#define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_spsa2_dina)
+#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_SPSA2_1_SOLID)
+extern struct cpufreq_governor cpufreq_gov_spsa2_1_solid;
+#define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_spsa2_1_solid)
+#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_SPSA2_1_EAS)
+extern struct cpufreq_governor cpufreq_gov_spsa2_1_eas;
+#define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_spsa2_1_eas)
+#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_SPSA2_2)
+extern struct cpufreq_governor cpufreq_gov_spsa2_2;
+#define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_spsa2_2)
+#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_SPSA2_3)
+extern struct cpufreq_governor cpufreq_gov_spsa2_3;
+#define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_spsa2_3)
+#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_SPSA2_1_HIGHFREQ)
+extern struct cpufreq_governor cpufreq_gov_spsa2_1_highfreq;
+#define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_spsa2_1_highfreq)
 #elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_CONSERVATIVE)
 extern struct cpufreq_governor cpufreq_gov_conservative;
 #define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_conservative)
